@@ -182,7 +182,7 @@ bool bst2dInsert(BST2d *bst2d, Point *point, void *value) {
 
     List *result_list = listNew();
 
-    /* Recursively search the tree */
+    // Recursively search the tree
     bst2dRangeSearchHelper(bst2d->root, lower_bound, upper_bound, result_list);
 
     return result_list;

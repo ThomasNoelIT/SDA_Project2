@@ -32,11 +32,12 @@ struct PointDct_t {
  * ------------------------------------------------------------------------- */
 
 static void freeNode(TreeNode *node) {
-    if (node != NULL) {
-        freeNode(node->left);
-        freeNode(node->right);
-        free(node);
+    if (node == NULL) {
+        return;
     }
+    freeNode(node->left);
+    freeNode(node->right);
+    free(node);
 }
 
 /* ------------------------------------------------------------------------- *
@@ -58,7 +59,7 @@ static TreeNode *createNode(Point *point, void *value) {
  * tree rooted at the given node.
  * ------------------------------------------------------------------------- */
 
-static void insertNode(TreeNode *node, Point *point, void *value) {
+/*static void insertNode(TreeNode *node, Point *point, void *value) {
     if (point->x < node->point->x) {
         if (node->left == NULL) {
             node->left = createNode(point, value);
@@ -71,6 +72,16 @@ static void insertNode(TreeNode *node, Point *point, void *value) {
         } else {
             insertNode(node->right, point, value);
         }
+    }
+}*/
+
+static void insertNode(TreeNode **node, Point *point, void *value) {
+    if (*node == NULL) {
+        *node = createNode(point, value);
+    } else if (point->x < (*node)->point->x) {
+        insertNode(&((*node)->left), point, value);
+    } else if (point->x > (*node)->point->x) {
+        insertNode(&((*node)->right), point, value);
     }
 }
 
@@ -85,7 +96,7 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
     ListElmt *p = listHead(lpoints);
     ListElmt *v = listHead(lvalues);
     while (p != NULL && v != NULL) {
-        insertNode(pd->root, (Point *) listData(p), listData(v));
+        insertNode(&(pd->root), (Point *) listData(p), listData(v));
         p = listNext(p);
         v = listNext(v);
     }
@@ -125,8 +136,9 @@ void pdctFree(PointDct *pd) {
         return;
     }
 
-    pdctFree(pd->left);
-    pdctFree(pd->right);
+    /*pdctFree(pd->left);
+    pdctFree(pd->right);*/
+    freeNode(pd->root);
     free(pd);
 }
 

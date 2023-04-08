@@ -163,7 +163,53 @@ void *bstSearch(BST *bst, void *key)
 {
 }*/
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 double bstAverageNodeDepth(BST *bst)
+{
+    if (bst->root == NULL) {
+        return 0.0;
+    }
+
+    double sumDepth = 0.0;
+    size_t countNodes = 0;
+    List *q = listNew();
+    listPushBack(q, bst->root);
+
+    while (!listIsEmpty(q)) {
+        BNode *n = (BNode *)listFront(q);
+        listPopFront(q);
+        sumDepth += bstDepth(bst, n);
+        countNodes++;
+
+        if (n->left != NULL) {
+            listPushBack(q, n->left);
+        }
+        if (n->right != NULL) {
+            listPushBack(q, n->right);
+        }
+    }
+
+    listFree(q, false);
+    return sumDepth / countNodes;
+}
+
+static size_t bstDepth(BST *bst, BNode *n)
+{
+    size_t depth = 0;
+
+    while (n != bst->root) {
+        n = n->parent;
+        depth++;
+    }
+
+    return depth;
+}
+
+
+
+
+
+/*double bstAverageNodeDepth(BST *bst)
 {
     if (bst->root == NULL)
     {
@@ -201,7 +247,7 @@ static size_t bstDepth(BST *bst, BNode *n)
         depth++;
     }
     return depth;
-}
+}*/
 
 /*double bstAverageNodeDepth(BST *bst)
 {

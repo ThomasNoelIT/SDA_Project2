@@ -156,13 +156,96 @@ void *bstSearch(BST *bst, void *key)
     }
     return NULL;
 }
-
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // A compléter
 
+/*double bstAverageNodeDepth(BST *bst)
+{
+}*/
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//V3
 double bstAverageNodeDepth(BST *bst)
 {
+    if (bst->root == NULL) {
+        return 0.0;
+    }
+
+    int totalDepth = 0;
+    int nodeCount = 0;
+    List *stack = listNew();
+
+    BNode *current = bst->root;
+
+    while (current != NULL || !listIsEmpty(stack)) {
+        if (current != NULL) {
+            listPushFront(stack, current);
+            current = current->left;
+        } else {
+            current = listPopFront(stack);
+            totalDepth += bstNodeDepth(bst, current);
+            nodeCount++;
+            current = current->right;
+        }
+    }
+
+    listFree(stack);
+
+    return (double) totalDepth / nodeCount;
 }
 
+int bstNodeDepth(BST *bst, BNode *node)
+{
+    int depth = 0;
+    while (node != NULL && node != bst->root) {
+        node = node->parent;
+        depth++;
+    }
+    return depth;
+}
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+/*List *bstRangeSearch(BST *bst, void *keymin, void *keymax)
+{
+}*/
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//V2
 List *bstRangeSearch(BST *bst, void *keymin, void *keymax)
 {
+    List *list = listNew();
+    if (list == NULL)
+    {
+        printf("bstRangeSearch: allocation error\n");
+        return NULL;
+    }
+    BNode *n = bst->root;
+    while (n != NULL)
+    {
+        if (bst->compfn(n->key, keymin) < 0)
+        {
+            n = n->right;
+        }
+        else if (bst->compfn(n->key, keymax) > 0)
+        {
+            n = n->left;
+        }
+        else
+        {
+            listInsertAtEnd(list, n);
+            BNode *pred = bstPredecessor(bst, n);
+            while (pred != NULL && bst->compfn(pred->key, keymin) >= 0)
+            {
+                listInsertAtEnd(list, pred);
+                pred = bstPredecessor(bst, pred);
+            }
+            BNode *succ = bstSuccessor(bst, n);
+            while (succ != NULL && bst->compfn(succ->key, keymax) <= 0)
+            {
+                listInsertAtEnd(list, succ);
+                succ = bstSuccessor(bst, succ);
+            }
+            return list;
+        }
+    }
+    return list;
 }
+

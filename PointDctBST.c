@@ -180,7 +180,7 @@ void *pdctExactSearch(PointDct *pd, Point *p) {
  * The list must be freed but not its content. If no elements are in the ball,
  * the function returns an empty list.
  * ------------------------------------------------------------------------- */
-List *pdctBallSearch(PointDct *pd, Point *p, double r) {
+/*List *pdctBallSearch(PointDct *pd, Point *p, double r) {
     List *result = listCreate(NULL);
     if (result == NULL) {
         return NULL;
@@ -188,6 +188,28 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r) {
 
     bstBallSearch(pd->bst, p, r, result);
     return result;
+}*/
+
+List pdctBallSearch(BSTree t, double x, double y, double radius) {
+    List result = newList();
+    pdctBallSearchHelper(t->root, x, y, radius, result);
+    return result;
 }
+
+void pdctBallSearchHelper(Node *n, double x, double y, double radius, List result) {
+    if (n == NULL) {
+        return;
+    }
+    if (distance(n->value->x, n->value->y, x, y) <= radius) {
+        insertList(result, n->value);
+    }
+    if (n->left != NULL && n->left->max_x >= x - radius) {
+        pdctBallSearchHelper(n->left, x, y, radius, result);
+    }
+    if (n->right != NULL && n->right->min_x <= x + radius) {
+        pdctBallSearchHelper(n->right, x, y, radius, result);
+    }
+}
+
 
 

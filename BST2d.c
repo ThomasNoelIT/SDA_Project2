@@ -25,6 +25,7 @@ struct BST2d_t {
     BST2dNode *root;
     size_t size;
 };
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 static BST2dNode *bst2dNodeNew(Point *p, bool vertical) {
     BST2dNode *n = malloc(sizeof(BST2dNode));
@@ -48,6 +49,7 @@ static void bst2dNodeFree(BST2dNode *n) {
     pointFree(n->p);
     free(n);
 }
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 BST2d *bst2dNew(void) {
     BST2d *bst = malloc(sizeof(BST2d));
@@ -59,6 +61,7 @@ BST2d *bst2dNew(void) {
     bst->size = 0;
     return bst;
 }
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 void bst2dFree(BST2d *bst) {
     bst2dNodeFree(bst->root);
@@ -69,10 +72,10 @@ size_t bst2dSize(BST2d *bst) {
     return bst->size;
 }
 
-static BST2dNode *bst2dInsertRec(BST2dNode *n, Point *p, bool vertical) {
-    if (n == NULL) {
+/*static BST2dNode *bst2dInsertRec(BST2dNode *n, Point *p, bool vertical) {
+    /*if (n == NULL) {
         return bst2dNodeNew(p, vertical);
-    }
+    }*/
     if (pointEquals(n->p, p)) {
         return n;
     }
@@ -83,27 +86,15 @@ static BST2dNode *bst2dInsertRec(BST2dNode *n, Point *p, bool vertical) {
         n->right = bst2dInsertRec(n->right, p, !vertical);
     }
     return n;
-}
+}*/
 
 void bst2dInsert(BST2d *bst, Point *p) {
     bst->root = bst2dInsertRec(bst->root, p, true);
     bst->size++;
 }
 
-static void bst2dRangeSearchRec(BST2dNode *n, Rect rect, List *list) {
-    if (n == NULL) {
-        return;
-    }
-    if (rectContains(rect, n->p)) {
-        listAdd(list, n->p);
-    }
-    if (n->vertical) {
-        if (rect.left < n->p->x) {
-            bst2dRangeSearchRec(n->left, rect, list);
-        }
-        if (rect.right >= n->p->x) {
-            bst2dRangeSearchRec(n->right, rect, list);
-        }
+// static void bst2dRangeSearchRec(BST2dNode *n, Rect rect, List *list) attention !!!
+
     } else {
         if (rect.bottom < n->p->y) {
             bst2dRangeSearchRec(n->left, rect, list);

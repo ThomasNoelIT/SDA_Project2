@@ -195,10 +195,10 @@ void bst2dRangeSearchHelper(BST2dNode *node, Point *lower_bound, Point *upper_bo
     }
 
     if (pointCompare(node->point, lower_bound) >= 0 && pointCompare(node->point, upper_bound) <= 0) {
-        /* Node's point is within the range */
+        // Node's point is within the range
         ListNode *value_node = node->values->head;
         while (value_node) {
-            /* Add all values associated with the point to the result list */
+            // Add all values associated with the point to the result list
             listPushBack(result_list, value_node->data);
             value_node = value_node->next;
         }

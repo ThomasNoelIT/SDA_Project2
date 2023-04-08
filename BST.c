@@ -163,8 +163,47 @@ void *bstSearch(BST *bst, void *key)
 {
 }*/
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//V3
 double bstAverageNodeDepth(BST *bst)
+{
+    if (bst->root == NULL)
+    {
+        return 0.0;
+    }
+    double sumDepth = 0.0;
+    size_t countNodes = 0;
+    List *q = listNew();
+    listPushBack(q, bst->root);
+    while (!listIsEmpty(q))
+    {
+        BNode *n = (BNode *)listFront(q);
+        listPopFront(q);
+        sumDepth += bstDepth(bst, n);
+        countNodes++;
+        if (n->left != NULL)
+        {
+            listPushBack(q, n->left);
+        }
+        if (n->right != NULL)
+        {
+            listPushBack(q, n->right);
+        }
+    }
+    listFree(q, false);
+    return sumDepth / countNodes;
+}
+
+static size_t bstDepth(BST *bst, BNode *n)
+{
+    size_t depth = 0;
+    while (n != bst->root)
+    {
+        n = n->parent;
+        depth++;
+    }
+    return depth;
+}
+
+/*double bstAverageNodeDepth(BST *bst)
 {
     if (bst->root == NULL) {
         return 0.0;
@@ -201,16 +240,43 @@ int bstNodeDepth(BST *bst, BNode *node)
         depth++;
     }
     return depth;
-}
+}*/
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 /*List *bstRangeSearch(BST *bst, void *keymin, void *keymax)
 {
 }*/
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//V2
-List *bstRangeSearch(BST *bst, void *keymin, void *keymax)
+List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax)
 {
+    List *l = listNew();
+    if (l == NULL)
+    {
+        return NULL;
+    }
+    BNode *n = bst->root;
+    while (n != NULL)
+    {
+        int cmpMin = bst->compfn(keyMin, n->key);
+        int cmpMax = bst->compfn(keyMax, n->key);
+        if (cmpMin <= 0 && cmpMax >= 0)
+        {
+            listPushBack(l, n->value);
+        }
+        if (cmpMin <= 0)
+        {
+            n = n->left;
+        }
+        else
+        {
+            n = n->right;
+        }
+    }
+    return l;
+}
+
+    
+/*List *bstRangeSearch(BST *bst, void *keymin, void *keymax){
     List *list = listNew();
     if (list == NULL)
     {
@@ -247,5 +313,5 @@ List *bstRangeSearch(BST *bst, void *keymin, void *keymax)
         }
     }
     return list;
-}
+}*/
 

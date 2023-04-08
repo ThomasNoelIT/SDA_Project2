@@ -8,9 +8,9 @@
 #include <math.h>
 #include "BST2d.h"
 
-// A compléter
 
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+static void bst2dRangeSearchHelper(Node* node, double x1, double y1, double x2, double y2, List* resultList);
+
 
 /* ------------------------------------------------------------------------- *
  * Structure for the nodes of the BST2d
@@ -23,6 +23,7 @@ typedef struct Node_t {
 
 struct BST2d_t {
     Node* root;
+    size_t size;
 };
 
 /* ------------------------------------------------------------------------- *
@@ -39,26 +40,38 @@ static Node* newNode(Point* point) {
 /* ------------------------------------------------------------------------- *
  * Inserts a point into the BST2d
  * ------------------------------------------------------------------------- */
-void bst2dInsert(BST2d* bst2d, Point* point) {
+bool bst2dInsert(BST2d *bst2d, Point* point, void *value) {
+    if (!bst2d || !point) {
+        return false;
+    }
+
     Node* node = newNode(point);
     if (bst2d->root == NULL) {
         bst2d->root = node;
-        return;
+        bst2d->size++;
+        return true;
     }
+
     Node* current = bst2d->root;
     while (true) {
         if (point->x < current->point->x) {
             if (current->left == NULL) {
                 current->left = node;
-                return;
+                bst2d->size++;
+                return true;
             }
             current = current->left;
-        } else {
+        } else if (point->x > current->point->x) {
             if (current->right == NULL) {
                 current->right = node;
-                return;
+                bst2d->size++;
+                return true;
             }
             current = current->right;
+        } else {
+            /* Found existing point, add new value to list */
+            listPushBack(current->point->values, value);
+            return true;
         }
     }
 }
@@ -137,7 +150,7 @@ size_t bst2dSize(BST2d *bst2d) {
 
 
 /* Inserts a new element with the given position-value pair into the BST2d. */
-bool bst2dInsert(BST2d *bst2d, Point *point, void *value) {
+/*bool bst2dInsert(BST2d *bst2d, Point *point, void *value) {
     if (!bst2d || !point) {
         return false;
     }
@@ -156,7 +169,7 @@ bool bst2dInsert(BST2d *bst2d, Point *point, void *value) {
         }
     }
 
-    /* Point does not exist in tree, create new node */
+    // Point does not exist in tree, create new node
     BST2dNode *new_node = (BST2dNode *)malloc(sizeof(BST2dNode));
     if (!new_node) {
         return false;
@@ -171,7 +184,7 @@ bool bst2dInsert(BST2d *bst2d, Point *point, void *value) {
     bst2d->size++;
 
     return true;
-}
+}*/
 
 
 // Searches the BST2d for all elements that fall within the given range.
@@ -214,13 +227,31 @@ void bst2dRangeSearchHelper(BST2dNode *node, Point *lower_bound, Point *upper_bo
 }*/
 
 // par récursion
-void *bst2dSearch(BST2d *bst2d, Point *q) {
+/*void *bst2dSearch(BST2d *bst2d, Point *q) {
     if (bst2d == NULL || pointEqual(q, bst2d->point)) {
         // Si l'arbre est nul ou si le point est trouvé dans l'arbre,
         // on retourne la valeur associée à ce point (ou NULL si l'arbre est nul)
         return (bst2d == NULL) ? NULL : bst2d->value;
     }
     else if (pointLess(q, bst2d->point)) {
+        // Si le point est plus petit que le point courant, on cherche
+        // récursivement dans le sous-arbre gauche
+        return bst2dSearch(bst2d->left, q);
+    }
+    else {
+        // Si le point est plus grand que le point courant, on cherche
+        // récursivement dans le sous-arbre droit
+        return bst2dSearch(bst2d->right, q);
+    }
+}*/
+    
+void *bst2dSearch(BST2d *bst2d, Point *q) {
+    if (bst2d == NULL || pointEqual(q, &(bst2d->point))) {
+        // Si l'arbre est nul ou si le point est trouvé dans l'arbre,
+        // on retourne la valeur associée à ce point (ou NULL si l'arbre est nul)
+        return (bst2d == NULL) ? NULL : bst2d->data;
+    }
+    else if (pointLess(q, &(bst2d->point))) {
         // Si le point est plus petit que le point courant, on cherche
         // récursivement dans le sous-arbre gauche
         return bst2dSearch(bst2d->left, q);

@@ -73,9 +73,9 @@ size_t bst2dSize(BST2d *bst) {
 }
 
 /*static BST2dNode *bst2dInsertRec(BST2dNode *n, Point *p, bool vertical) {
-    /*if (n == NULL) {
-        return bst2dNodeNew(p, vertical);
-    }*/
+    //if (n == NULL) {
+    //    return bst2dNodeNew(p, vertical);
+    //}
     if (pointEquals(n->p, p)) {
         return n;
     }

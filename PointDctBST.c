@@ -20,6 +20,24 @@ typedef struct bstNode_t {
     struct bstNode_t *right;
 } BSTNode;
 
+typedef struct BNode_t BNode;
+
+struct BNode_t
+{
+    BNode *parent;
+    BNode *left;
+    BNode *right;
+    void *key;
+    void *value;
+};
+
+struct BST_t
+{
+    BNode *root;
+    size_t size;
+    int (*compfn)(void *, void *);
+};
+
 typedef struct PointDct_t {
     BST *bst; // Pointeur vers l'arbre binaire de recherche
 } PointDct;
@@ -55,8 +73,8 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
         // Insérer le nœud dans l'arbre binaire de recherche
         bstInsert(pd->bst, node->key, node->value);
         // Passer au prochain point et à la prochaine valeur dans les listes
-        currPoint = currPoint->next;
-        currValue = currValue->next;
+        currPoint = currPoint->right;
+        currValue = currValue->right;
     }
 
     // Vérifier si les deux listes ont le même nombre d'éléments
@@ -86,7 +104,7 @@ BNode *bstNodeCreate(void *key, void *value) {
 
 void pdctFree(PointDct *pd) {
     if (pd == NULL) {
-        printf("Warning in pdctFree: pd is already NULL\n")
+        printf("Warning in pdctFree: pd is already NULL\n");
         return;
     }
     bstFree(pd->bst, true, true); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées

@@ -242,7 +242,7 @@ static Point *transformToLL(double x, double y)
 
 int main(int argc, char **argv)
 {
-
+    
     if (argc != 4)
     {
         printf("Usage: ./testtaxi longitude latitude radius\n");

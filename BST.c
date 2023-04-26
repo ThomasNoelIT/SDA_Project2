@@ -41,7 +41,6 @@ struct BST {
     struct BSTNode *root;
     int (*compare)(const void *, const void *);
 };
-
 struct BSTNode {
     void *key;
     void *value;
@@ -59,6 +58,10 @@ struct BSTNode {
 
 static void bstFreeRec(BNode *n, bool freeKey, bool freeValue);
 static BNode *bnNew(void *key, void *value);
+int compare(const void *a, const void *b);
+void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l);
+size_t bstDepth(BST *bst, BNode *node);
+
 
 /* Function definitions */
 
@@ -207,34 +210,53 @@ size_t bstDepth(BST *bst, BNode *node)
 
 double bstAverageNodeDepth(BST *bst)
 {
+    printf("20\n");
     if (bst->root == NULL) {
         return 0.0;
     }
 
     double sumDepth = 0.0;
     size_t countNodes = 0;
+    //printf("21\n");
     List *q = listNew();
+    //printf("22\n");
     listInsertLast(q, bst->root);
+    //printf("23\n");
 
     while (listSize(q) > 0) {
+        //printf("29\n");
+        if(q->head == NULL) {
+            break;
+        }
+        //printf("30\n");
+        //printf("value = %p\n", q->head->value);
         BNode *n = (BNode *)q->head->value;
+        
+        //printf("31\n");
         sumDepth += bstDepth(bst, n);
         countNodes++;
-
+        //printf("32\n");
         if (n->left != NULL) {
             listInsertLast(q, n->left);
         }
+        //printf("33\n");
         if (n->right != NULL) {
             listInsertLast(q, n->right);
         }
+        //printf("34\n");
 
         // Remove the front element by updating the head of the list
         LNode *oldHead = q->head;
+        //printf("35\n");
         q->head = q->head->next;
+        //printf("36\n");
         free(oldHead);
+        //printf("37\n");
     }
+    //printf("24\n");
 
     listFree(q, false); // Pass false to not free the content of the list nodes
+    //printf("25\n");
     return sumDepth / countNodes;
 }
 

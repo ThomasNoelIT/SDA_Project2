@@ -9,6 +9,8 @@
 /* ========================================================================= *
  * main in testTree
  * ========================================================================= */
+int compare_doubles(void* a, void* b);
+
 int compare_doubles(void* a, void* b)
 {
     double* a_ = (double*)a;
@@ -18,11 +20,9 @@ int compare_doubles(void* a, void* b)
  
 int main(int argc, char const *argv[])
 {
-    printf("1\n");
     //BST2d *tree = bst2dNew();
     BST *tree = bstNew(compare_doubles);
 
-    printf("2\n");
     int *key1, *value1;
     int *key2, *value2;
     int *key3, *value3;
@@ -61,8 +61,6 @@ int main(int argc, char const *argv[])
     key7 = &k7;
     value7 = &v7;
 
-    printf("3\n");
-
     // bool a = bst2dInsert(tree, (void *) key1, (void *) value1);
     // bool b = bst2dInsert(tree, (void *) key2, (void *) value2);
     // bool c = bst2dInsert(tree, (void *) key3, (void *) value3);
@@ -71,38 +69,21 @@ int main(int argc, char const *argv[])
     // bool f = bst2dInsert(tree, (void *) key6, (void *) value6);
     // bool g = bst2dInsert(tree, (void *) key7, (void *) value7);
 
-    bool a = bstInsert(tree, (void *) key1, (void *) value1);
-    bool b = bstInsert(tree, (void *) key2, (void *) value2);
-    bool c = bstInsert(tree, (void *) key3, (void *) value3);
-    bool d = bstInsert(tree, (void *) key4, (void *) value4);
-    bool e = bstInsert(tree, (void *) key5, (void *) value5);
-    bool f = bstInsert(tree, (void *) key6, (void *) value6);
-    bool g = bstInsert(tree, (void *) key7, (void *) value7);
-
-
-    printf("4\n");
-
-    printf("a = %d\n",a);
-    printf("b = %d\n",b);
-    printf("c = %d\n",c);
-    printf("d = %d\n",d);
-    printf("e = %d\n",e);
-    printf("f = %d\n",f);
-    printf("g = %d\n",g);
-
-    printf("5\n");
+    bstInsert(tree, (void *) key1, (void *) value1);
+    bstInsert(tree, (void *) key2, (void *) value2);
+    bstInsert(tree, (void *) key3, (void *) value3);
+    bstInsert(tree, (void *) key4, (void *) value4);
+    bstInsert(tree, (void *) key5, (void *) value5);
+    bstInsert(tree, (void *) key6, (void *) value6);
+    bstInsert(tree, (void *) key7, (void *) value7);
 
     //double lg = bst2dAverageNodeDepth(tree);
     double lg = bstAverageNodeDepth(tree);
 
     printf("the average length : %f\n", lg);
 
-    printf("6\n");
-
     //bst2dFree(tree, false, false);
     bstFree(tree, false, false);
-
-    printf("7\n");
 
     return 0;
 }

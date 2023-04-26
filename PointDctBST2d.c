@@ -1,110 +1,179 @@
 /* ========================================================================= *
- * PointDct definition (with BST2d)
+ * PointDct2d definition (with BST)
  * ========================================================================= */
+#ifndef POINTDCT_H
+#define POINTDCT_H
+
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "PointDct.h"
-#include "List.h"
+#include <math.h>
 #include "Point.h"
-#include "BST2d.h"
+#include "List.h"
+#include "PointDct.h"
+#include "BST2d.h" // Include the BST2d header file for using the BST data structure
 
-struct PointDct_t {
-    BST2d *bst;
-    int size;
+//--------------------------------------------------------------------------------------------------------------------------------
+
+typedef struct BST2dNode_t BST2dNode;
+
+struct BST2dNode_t {
+    Point *p;
+    BST2dNode *left;
+    BST2dNode *right;
+    void *key;
+    void *value;
+    bool vertical;
 };
 
-/* ------------------------------------------------------------------------- *
- * Creates a PointDict object (dictionary of points). Points and values
- * are expected to be stored by pointers in the structure. They will not
- * be freed by pdctFree.
- *
- * PARAMETERS
- * lpoints          A list of Point objects (Point pointers)
- * lvalues          A list of values (void * pointers)
- *
- * RETURN
- * pd               A PointDict object
- * ------------------------------------------------------------------------- */
+struct BST2d_t {
+    BST2dNode *root;
+    size_t size;
+};
+struct PointDct_t {
+    BST2d *bst2d; // Pointeur vers l'arbre binaire de recherche
+};
 
-PointDct *pdctCreate(List *lpoints, List *Lvalues){
-    PointDct *pd = malloc(sizeof(PointDct));
-    pd->bst = bst2dCreate();
-    pd->size = 0;
-    List *lp = lpoints;
-    List *lv = Lvalues;
-    while (lp != NULL && lv != NULL) {
-        bst2dInsert(pd->bst, lp->value, lv->value);
-        lp = lp->next;
-        lv = lv->next;
-        pd->size++;
+//--------------------------------------------------------------------------------------------------------------------------------
+BST2dNode *bstNodeCreate(void *key, void *value);
+void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius);
+//--------------------------------------------------------------------------------------------------------------------------------
+
+PointDct *pdctCreate(List *lpoints, List *lvalues) {
+    PointDct *pd = (PointDct *)malloc(sizeof(PointDct));
+    if (pd == NULL) {
+        printf("Error in pdctCreate: Failed to allocate memory for PointDct\n");
+        return NULL;
     }
-    return pd;
+    if (lpoints == NULL) {
+        printf("Error in pdctCreate: lpoints is NULL\n");
+        return NULL;
+    }
+    if (lvalues == NULL) {
+        printf("Error in pdctCreate: lvalues is NULL\n");
+        return NULL;
+    }
+    pd->bst2d = bst2dNew();
+
+    LNode *currPoint = lpoints->head;
+    LNode *currValue = lvalues->head;
+    
+    if(currPoint == NULL || currValue == NULL) {
+        printf("Error in pdctCreate: lpoints or lvalues is empty\n");
+        return NULL;
+    }
+    while (currPoint != NULL && currValue != NULL) {
+
+        bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
+        currPoint = currPoint->next;
+        currValue = currValue->next;
+    }
+
+    // Check if both lists have the same number of elements
+    if (currPoint != NULL || currValue != NULL) {
+        printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
+        return NULL;
+    }
+    return pd; // Return the pointer to the created PointDct structure
 }
 
-/* ------------------------------------------------------------------------- *
- * Frees a PointDct object. The Point objects and values are not freed.
- *
- * PARAMETERS
- * pd            A valid pointer to a PointDct object
- *
- * ------------------------------------------------------------------------- */
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+BST2dNode *bstNodeCreate(void *key, void *value){
+    BST2dNode *node = (BST2dNode *)malloc(sizeof(BST2dNode));
+    if (node == NULL) {
+        printf("Error in bstNodeCreate: Failed to allocate memory for BNode\n");
+        return NULL;
+    }
+    node->key = key;
+    node->value = value;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------
 
 void pdctFree(PointDct *pd){
-    bst2dFree(pd->bst);
-    free(pd);
+    if (pd == NULL) {
+        printf("Warning in pdctFree: pd is already NULL\n");
+        return;
+    }
+    bst2dFree(pd->bst2d, true, true); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
+    free(pd); // Libérer la structure PointDct elle-même
 }
 
-/* ------------------------------------------------------------------------- *
- * Returns the number of points stored in the PointDct object.
- *
- * PARAMETERS
- * pd           A valid pointer to a PointDct object
- *
- * RETURN
- * nb           The number of positions in pd
- * ------------------------------------------------------------------------- */
+//--------------------------------------------------------------------------------------------------------------------------------
 
 size_t pdctSize(PointDct *pd){
-    return pd->size;
+    if (pd == NULL) {
+        printf("Error in pdctSize: pd is NULL\n");
+        return 0;
+    }
+
+    // Utiliser la fonction bstSize pour obtenir le nombre de nœuds dans l'arbre binaire de recherche
+    return bst2dSize(pd->bst2d);
 }
 
-/* ------------------------------------------------------------------------- *
- * Returns the value associated to a point, if it belongs to the PointDct.
- * If several duplicate copies of that point belongs to pd, any one of the
- * values associated to that key is returned.
- *
- * PARAMETERS
- * pd           A valid pointer to a PointDct object
- * p            The point to look for
- *
- * RETURN
- * res          One of the value corresponding to that point. Or NULL if
- *              the point is not present in the BST
- * ------------------------------------------------------------------------- */
+//--------------------------------------------------------------------------------------------------------------------------------
 
-void *pdctExactSearch(PointDct *pd, Point *p);
-
-/* ------------------------------------------------------------------------- *
- * Finds the set of positions (x,y) in the Point dictionary that are included
- * in a ball of radius r and centered at the position q given as argument.
- * The function returns a list of the values associated to these positions
- * (in no particular order).
- *
- * PARAMETERS
- * pd           A valid pointer to a PointDct object
- * q            The center of the ball
- * r            The radius of the ball
- *
- * RETURN
- * l            A list containing the values in the given ball, or NULL
- *              in case of allocation error.
- *
- * NOTES
- * The list must be freed but not its content. If no elements are in the ball,
- * the function returns an empty list.
- * ------------------------------------------------------------------------- */
-
-List *pdctBallSearch(PointDct *pd, Point *p, double r){
-
+void *pdctExactSearch(PointDct *pd, Point *p)
+{
+    //printf("\n");
+    void* val = bst2dSearch(pd->bst2d, p);
+    //printf("node: %p\n", val);
+    if (val != NULL)
+    {
+        return val;
+    }
+    else
+    {
+        return NULL;
+    }
 }
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius)
+{
+    if (node == NULL)
+    {
+        return;
+    }
+
+    // Calcul de la distance entre la clé du nœud et le centre du ball
+    double distance = sqrt(ptSqrDistance(node->key, center));
+
+    // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
+    if (distance <= radius)
+    {
+        listInsertLast(result, node->value); // Ajout de la valeur associée à la clé dans la liste résultat
+    }
+
+    // Recherche récursive dans les sous-arbres gauche et droit
+    bstBallSearchRec(node->left, result, center, radius);
+    bstBallSearchRec(node->right, result, center, radius);
+}
+
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+List *pdctBallSearch(PointDct *pd, Point *q, double r)
+{
+    // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
+    List *result = listNew();
+    if (result == NULL)
+    {
+        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
+        return NULL;
+    }
+
+    // Parcours de l'arbre binaire de recherche à partir de la racine
+    bstBallSearchRec(pd->bst2d->root, result, q, r);
+
+    return result;
+}
+//--------------------------------------------------------------------------------------------------------------------------------
+
+#endif // POINTDCT_H
+

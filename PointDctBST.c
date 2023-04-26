@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "Point.h"
 #include "List.h"
 #include "PointDct.h"
@@ -13,18 +14,10 @@
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-typedef struct bstNode_t {
-    void *key;
-    void *value; // Nouveau champ pour la valeur associée au nœud
-    struct bstNode_t *left;
-    struct bstNode_t *right;
-} BSTNode;
-
 typedef struct BNode_t BNode;
 
 struct BNode_t
 {
-    BNode *parent;
     BNode *left;
     BNode *right;
     void *key;
@@ -49,7 +42,12 @@ List *pdctBallSearch(PointDct *pd, Point *q, double r);
 void bstBallSearchRec(BNode *node, List *result, Point *q, double r);
 PointDct *pdctCreate(List *lpoints, List *lvalues);
 
-
+static int mycompare(void *a, void *b){
+    Point *p1 = (Point *)a;
+    Point *p2 = (Point *)b;
+    int cpt = ptCompare(p1, p2);
+    return cpt;
+}
 PointDct *pdctCreate(List *lpoints, List *lvalues) {
     PointDct *pd = (PointDct *)malloc(sizeof(PointDct));
     if (pd == NULL) {
@@ -64,82 +62,59 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
         printf("Error in pdctCreate: lvalues is NULL\n");
         return NULL;
     }
-    pd->bst = bstNew(NULL); // Pass NULL as comparison function to bstNew
+    pd->bst = bstNew(mycompare);
+    //pd->bst = bstNew((int f(void *, void*))ptCompare); // Pass NULL as comparison function to bstNew
 
     // Insert the values from lpoints and lvalues into the binary search tree
     LNode *currPoint = lpoints->head;
     LNode *currValue = lvalues->head;
+    
+    if(currPoint == NULL || currValue == NULL) {
+        printf("Error in pdctCreate: lpoints or lvalues is empty\n");
+        return NULL;
+    }
 
+    //bool temp = 0;
     // Traverse the lists and insert the values into the binary search tree
     while (currPoint != NULL && currValue != NULL) {
+
+        // printf("currPoint: %p\n", currPoint->value);
+        // printf("currValue: %p\n", currValue->value);
+        // printf("currPoint next : %p\n", currPoint->next->value);
+        // printf("currValue next : %p\n", currValue->next->value);
+
         // Create a new node with the key (point) and the associated value
+        //printf("20\n");
         bstInsert(pd->bst, currPoint->value, currValue->value);
+        // printf("temp: %d\n", temp);
+        // printf("21\n");
         // Insert the node into the binary search tree
         //bstInsert(pd->bst, node->key, node->value);
         // Move to the next point and next value in the lists
         currPoint = currPoint->next;
         currValue = currValue->next;
-    }
 
+        // if(currPoint == NULL || currValue == NULL) {
+        //     printf("Error in pdctCreate: lpoints or lvalues is empty\n");
+        //     return NULL;
+        // }
+
+        // printf("currPoint: %p\n", currPoint->value);
+        // printf("currValue: %p\n", currValue->value);
+        
+        //printf("22\n");
+    }
 
     // Check if both lists have the same number of elements
     if (currPoint != NULL || currValue != NULL) {
         printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
         return NULL;
     }
-return pd; // Return the pointer to the created PointDct structure
+    return pd; // Return the pointer to the created PointDct structure
 
 }
 
-
-// // Define the function pdctCreate
-// PointDct *pdctCreate(List *lpoints, List *lvalues) {
-//     PointDct *pd = (PointDct *)malloc(sizeof(PointDct));
-//     if (pd == NULL) {
-//         printf("Error in pdctCreate: Failed to allocate memory for PointDict\n");
-//         return NULL;
-//     }
-//     if (lpoints == NULL) {
-//         printf("Error in pdctCreate: lpoints is NULL\n");
-//         return NULL;
-//     }
-//     if (lvalues == NULL) {
-//         printf("Error in pdctCreate: lvalues is NULL\n");
-//         return NULL;
-//     }
-
-//     pd->bst = bstNew(NULL); // Pass NULL as comparison function to bstNew
-
-//     // Insérer les valeurs de lpoints et lvalues dans l'arbre binaire de recherche
-//     size_t size_pt = listSize(lpoints);
-//     bstInsert(pd->bst, (void *) size_pt, lvalues->head->value);
-
-//     size_t size_val = listSize(lvalues);
-//     bstInsert(pd->bst, (void *) size_val, lpoints->head->value);
-
-//     BNode *currPoint = lpoints->head;
-//     BNode *currValue = lvalues->head;
-    
-
-//     // Parcourir les listes et insérer les valeurs dans l'arbre binaire de recherche
-//     while (currPoint != NULL && currValue != NULL) {
-//         // Créer un nouveau nœud avec la clé (point) et la valeur associée
-//         BNode *node = bstInsert(pd->bst,currPoint->value, currValue->value);
-//         // Insérer le nœud dans l'arbre binaire de recherche
-//         bstInsert(pd->bst, node->key, node->value);
-//         // Passer au prochain point et à la prochaine valeur dans les listes
-//         currPoint = currPoint->right;
-//         currValue = currValue->right;
-//     }
-
-//     // Vérifier si les deux listes ont le même nombre d'éléments
-//     if (currPoint != NULL || currValue != NULL) {
-//         printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
-//         return NULL;
-//     }
-
-//     return pd; // Retourner le pointeur vers la structure PointDct créée
-// }
+//--------------------------------------------------------------------------------------------------------------------------------
 
 BNode *bstNodeCreate(void *key, void *value) {
     BNode *node = (BNode *)malloc(sizeof(BNode));
@@ -151,7 +126,6 @@ BNode *bstNodeCreate(void *key, void *value) {
     node->value = value;
     node->left = NULL;
     node->right = NULL;
-    node->parent = NULL; // Ajouter cette ligne pour initialiser le pointeur parent à NULL
     return node;
 }
 
@@ -179,13 +153,27 @@ size_t pdctSize(PointDct *pd) {
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
-
+/* ------------------------------------------------------------------------- *
+ * Returns the value associated to a point, if it belongs to the PointDct.
+ * If several duplicate copies of that point belongs to pd, any one of the
+ * values associated to that key is returned.
+ *
+ * PARAMETERS
+ * pd           A valid pointer to a PointDct object
+ * p            The point to look for
+ *
+ * RETURN
+ * res          One of the value corresponding to that point. Or NULL if
+ *              the point is not present in the BST
+ * ------------------------------------------------------------------------- */
 void *pdctExactSearch(PointDct *pd, Point *p)
 {
-    BNode *node = bstSearch(pd->bst, p);
-    if (node != NULL)
+    //printf("\n");
+    void* val = bstSearch(pd->bst, p);
+    //printf("node: %p\n", val);
+    if (val != NULL)
     {
-        return node->value;
+        return val;
     }
     else
     {
@@ -195,7 +183,7 @@ void *pdctExactSearch(PointDct *pd, Point *p)
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void bstBallSearchRec(BNode *node, List *result, Point *q, double r)
+void bstBallSearchRec(BNode *node, List *result, Point *center, double radius)
 {
     if (node == NULL)
     {
@@ -203,30 +191,48 @@ void bstBallSearchRec(BNode *node, List *result, Point *q, double r)
     }
 
     // Calcul de la distance entre la clé du nœud et le centre du ball
-    double distance = ptSqrDistance(node->key, q);
+    double distance = sqrt(ptSqrDistance(node->key, center));
 
     // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
-    if (distance <= r)
+    if (distance <= radius)
     {
-        listInsertFirst(result, node->value); // Ajout de la valeur associée à la clé dans la liste résultat
+        listInsertLast(result, node->value); // Ajout de la valeur associée à la clé dans la liste résultat
     }
 
     // Recherche récursive dans les sous-arbres gauche et droit
-    bstBallSearchRec(node->left, result, q, r);
-    bstBallSearchRec(node->right, result, q, r);
+    bstBallSearchRec(node->left, result, center, radius);
+    bstBallSearchRec(node->right, result, center, radius);
 }
 
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
+/* ------------------------------------------------------------------------- *
+ * Finds the set of positions (x,y) in the Point dictionary that are included
+ * in a ball of radius r and centered at the position q given as argument.
+ * The function returns a list of the values associated to these positions
+ * (in no particular order).
+ *
+ * PARAMETERS
+ * pd           A valid pointer to a PointDct object
+ * q            The center of the ball
+ * r            The radius of the ball
+ *
+ * RETURN
+ * l            A list containing the values in the given ball, or NULL
+ *              in case of allocation error.
+ *
+ * NOTES
+ * The list must be freed but not its content. If no elements are in the ball,
+ * the function returns an empty list.
+ * ------------------------------------------------------------------------- */
 List *pdctBallSearch(PointDct *pd, Point *q, double r)
 {
     // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
     List *result = listNew();
-    if (!result)
+    if (result == NULL)
     {
-        // Gestion de l'erreur d'allocation mémoire
-        printf("Erreur dans pdctBallSearch: échec de l'allocation mémoire pour la liste résultat.\n");
+        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
         return NULL;
     }
 

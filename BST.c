@@ -9,8 +9,6 @@
 
 #include "BST.h"
 #include "List.h"
-#include "Point.h"
-#include "PointDct.h"
 
 /* Opaque Structure */
 
@@ -18,7 +16,6 @@ typedef struct BNode_t BNode;
 
 struct BNode_t
 {
-    BNode *parent;
     BNode *left;
     BNode *right;
     void *key;
@@ -58,7 +55,6 @@ struct BSTNode {
 
 static void bstFreeRec(BNode *n, bool freeKey, bool freeValue);
 static BNode *bnNew(void *key, void *value);
-int compare(const void *a, const void *b);
 void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l);
 size_t bstDepth(BST *bst, BNode *node);
 
@@ -132,25 +128,32 @@ bool bstInsert(BST *bst, void *key, void *value)
     }
     BNode *prev = NULL;
     BNode *n = bst->root;
+    //printf("30\n");
     while (n != NULL)
     {
         prev = n;
+        // printf("31\n");
+        // printf("key = %p\n", key);
+        // printf("n->key = %p\n", n->key);
+        // printf("32\n");
         int cmp = bst->compfn(key, n->key);
+        //printf("33\n");
         if (cmp <= 0)
         {
             n = n->left;
         }
-        else if (cmp > 0)
+        else
         {
             n = n->right;
         }
+        //printf("34\n");
     }
+    //printf("35\n");
     BNode *new = bnNew(key, value);
     if (new == NULL)
     {
         return false;
     }
-    new->parent = prev;
     if (bst->compfn(key, prev->key) <= 0)
     {
         prev->left = new;
@@ -160,8 +163,24 @@ bool bstInsert(BST *bst, void *key, void *value)
         prev->right = new;
     }
     bst->size++;
+    //printf("36\n");
     return true;
 }
+
+/* ------------------------------------------------------------------------- *
+ * Returns the value associated to that key, if it belongs to the bst.
+ * If duplicate copies of that key belongs to the bst, any one of the values
+ * associated to that key is returned.
+ *
+ *
+ * PARAMETERS
+ * bst          A valid pointer to a BST object
+ * key          The key to look for
+ *
+ * RETURN
+ * res          One of the value corresponding to that key. Or NULL if the key
+ *              is not present in the BST
+ * ------------------------------------------------------------------------- */
 
 void *bstSearch(BST *bst, void *key)
 {
@@ -179,6 +198,7 @@ void *bstSearch(BST *bst, void *key)
         }
         else
         {
+            //printf("bstSearch: key found : %p\n", n->value);
             return n->value;
         }
     }
@@ -303,6 +323,7 @@ List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax)
 
 // je sais pas si vraiment utile car on peut peut-être remplacer par compfn
 
+/*
 int compare(const void *a, const void *b)
 {
     int *keyA = (int *)a;
@@ -316,4 +337,4 @@ int compare(const void *a, const void *b)
     } else {
         return 0;
     }
-}
+}*/

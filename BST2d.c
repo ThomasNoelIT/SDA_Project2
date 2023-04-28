@@ -1,3 +1,4 @@
+
 /* ========================================================================= *
  * BST2d definition
  * ========================================================================= */
@@ -216,7 +217,7 @@ void *bst2dSearch(BST2d *b2d, Point *q){
         if (ptCompare(node->p, q) == 0) {
             // printf("\n");
             // printf("point : x = %f, y = %f\n",ptGetx(node->p),ptGety(node->p));
-            return node->p;
+            return node->value;
         }
         //printf("6\n");
         if (node->vertical) {

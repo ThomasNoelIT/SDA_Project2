@@ -1,8 +1,10 @@
 /* ========================================================================= *
  * PointDct2d definition (with BST)
  * ========================================================================= */
-//#ifndef POINTDCT_H
-//#define POINTDCT_H
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 
 #include "Point.h"
 #include "List.h"
@@ -110,5 +112,3 @@ List *pdctBallSearch(PointDct *pd, Point *q, double r)
 { 
     return bst2dBallSearch(pd->bst2d, q, r);
 }
-
-//#endif // POINTDCT_H

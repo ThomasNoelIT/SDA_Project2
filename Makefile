@@ -17,7 +17,8 @@ LDFLAGS = -lm
 
 all: $(TARGET_testlist) $(TARGET_testbst) $(TARGET_testbst2d)
 clean:
-	rm -f $(OFILES_testlist) $(OFILES_testbst) $(OFILES_testbst2d) $(OFILES_taxi)
+	rm -f $(OFILES_testlist) $(OFILES_testbst) $(OFILES_testbst2d)
+#   $(OFILES_taxi)
 run: $(TARGET_testlist) $(TARGET_testbst) $(TARGET_testbst2d)
 	./$(TARGET_testlist) 10000 100 0.01
 	./$(TARGET_testbst) 10000 100 0.01

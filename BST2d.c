@@ -1,6 +1,222 @@
 /* ========================================================================= *
  * BST2d definition
  * ========================================================================= */
+/*
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include "BST2d.h"
+#include "Point.h"
+#include "List.h"
+
+typedef struct BST2dNode_t BST2dNode;
+void bst2dAverageNodeDepthRecursive(BST2dNode *node, void* current_depth, List* depth);
+
+struct BST2dNode_t {
+    Point *p;
+    BST2dNode *left;
+    BST2dNode *right;
+    bool vertical;
+};
+
+struct BST2d_t {
+    BST2dNode *root;
+    size_t size;
+};
+*/
+/* ========================================================================= *
+ * BST2d interaction functions
+ * ========================================================================= */
+/*
+static BST2dNode *BST2dNode_new(void) {
+    BST2dNode *node = malloc(sizeof(BST2dNode));
+    if (node == NULL) {
+        return NULL;
+    }
+    node->p = ptNew(0, 0);
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+BST2d *bst2dNew(void){
+    BST2d *tree = malloc(sizeof(BST2d));
+    if (tree == NULL) {
+        return NULL;
+    }
+    tree->root = BST2dNode_new();
+    tree->size = 0;
+    return tree;
+}
+
+static void BST2dNode_free(BST2dNode *node, bool freeKey, bool freeValue) {
+    if (node == NULL) {
+        return;
+    }
+    ptFree(node->p);
+    free(node);
+}
+
+void bst2dFree(BST2d *bst2d, bool freeKey, bool freeValue) {
+    BST2dNode_free(bst2d->root,freeKey,freeValue);
+    free(bst2d);
+}
+
+static BST2dNode *BST2dNode_insert(BST2dNode *node, Point *p, bool vertical) {
+    if (node == NULL) {
+        node = BST2dNode_new();
+        node->p = p;
+        node->vertical = vertical;
+        return node;
+    }
+    if (vertical) {
+        if (ptGetx(p) < ptGetx(node->p)) {
+            node->left = BST2dNode_insert(node->left, p, !vertical);
+        } else {
+            node->right = BST2dNode_insert(node->right, p, !vertical);
+        }
+    } else {
+        if (ptGety(p) < ptGety(node->p)) {
+            node->left = BST2dNode_insert(node->left, p, !vertical);
+        } else {
+            node->right = BST2dNode_insert(node->right, p, !vertical);
+        }
+    }
+    return node;
+}
+
+size_t bst2dSize(BST2d *bst2d){
+    return bst2d->size;
+}
+
+bool bst2dInsert(BST2d *b2d, Point *point, void *value){
+    if (b2d == NULL) {
+        return false;
+    }
+    b2d->root = BST2dNode_insert(b2d->root, point, value);
+    b2d->size++;
+    return true;
+}
+*/
+/* ========================================================================= *
+ * BST2d functions
+ * ========================================================================= */
+/*
+void *bst2dSearch(BST2d *b2d, Point *q){
+    BST2dNode *node = b2d->root;
+    while (node != NULL) {
+        if (ptCompare(node->p, q) == 0) {
+            return node->p;
+        }
+        if (node->vertical) {
+            if (ptGetx(q) < ptGetx(node->p)) {
+                node = node->left;
+            } else {
+                node = node->right;
+            }
+        } else {
+            if (ptGety(q) < ptGety(node->p)) {
+                node = node->left;
+            } else {
+                node = node->right;
+            }
+        }
+    }
+    return NULL;
+}
+
+List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
+    List *l = listNew();
+    if (l == NULL) {
+        return NULL;
+    }
+    BST2dNode *node = bst2d->root;
+    while (node != NULL) {
+        if (ptSqrDistance(node->p, q) <= r) {
+            listInsertLast(l, node->p);
+        }
+        if (node->vertical) {
+            if (ptGetx(q) < ptGetx(node->p)) {
+                node = node->left;
+            } else {
+                node = node->right;
+            }
+        } else {
+            if (ptGety(q) < ptGety(node->p)) {
+                node = node->left;
+            } else {
+                node = node->right;
+            }
+        }
+    }
+    return l;
+}
+
+double bst2dAverageNodeDepth(BST2d *bst2d) {
+    double average = 0.0;
+    int size_tree = bst2d->size;
+    void* value;
+    printf("10\n");
+    List* depth = listNew();
+    if (depth == NULL) {
+        return 0.0;
+    }
+    printf("11\n");
+
+    bst2dAverageNodeDepthRecursive(bst2d->root, 0, depth);
+
+    printf("12\n");
+
+    for (int i = 0; i < size_tree-1; i++) {
+        printf("20\n");
+        //printf("value = %d",*(int*)depth->head->value);
+        //value = *(int*) depth->head->value;
+        
+        value = depth->head->value;
+        printf("21\n");
+        //printf("value = %p\n",value);
+        printf("22\n");
+        // int *test = value;
+
+        average += (int)(intptr_t)value;
+        printf("23\n");
+    }
+    printf("13\n");
+    printf("average = %a\n",average);
+    average /= size_tree;
+    printf("average = %a\n",average);
+
+    printf("14\n");
+
+    listFree(depth,1);
+
+    printf("15\n");
+
+    free(depth);
+
+    printf("16\n");
+
+
+    return average;
+}
+
+void bst2dAverageNodeDepthRecursive(BST2dNode *node, void* current_depth, List* depth) {
+    if (node == NULL) {
+        return;
+    }
+
+    listInsertLast(depth, current_depth);
+
+    bst2dAverageNodeDepthRecursive(node->left, current_depth+1, depth);
+    bst2dAverageNodeDepthRecursive(node->right, current_depth+1, depth);
+}
+*/
+
+/* ========================================================================= *
+ * BST2d definition
+ * ========================================================================= */
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -12,36 +228,28 @@
 #include "List.h"
 
 typedef struct BST2dNode_t BST2dNode;
+void bst2dAverageNodeDepthRecursive(BST2dNode *node, int current_depth, List* depth);
+
 struct BST2dNode_t {
     Point *p;
     BST2dNode *left;
     BST2dNode *right;
     bool vertical;
-    void *value;
+    void* value;
 };
 
 struct BST2d_t {
     BST2dNode *root;
     size_t size;
-    //int (*compfn)(void *, void *);
 };
-
-struct Point_t
-{
-    double x;
-    double y;
-};
-
-void bst2dAverageNodeDepthRecursive(BST2dNode *node, int current_depth, List* depth);
-void bst2dNodeFree(BST2dNode *node, bool freeKey, bool freeValue);
 
 /* ========================================================================= *
  * BST2d interaction functions
  * ========================================================================= */
+
 static BST2dNode *BST2dNode_new(double x, double y, bool vertical,void* value) {
     BST2dNode *node = malloc(sizeof(BST2dNode));
     if (node == NULL) {
-        printf("Error in BST2dNode_new : allocation error.\n");
         return NULL;
     }
     node->p = ptNew(x, y);
@@ -55,40 +263,15 @@ static BST2dNode *BST2dNode_new(double x, double y, bool vertical,void* value) {
 BST2d *bst2dNew(void){
     BST2d *tree = malloc(sizeof(BST2d));
     if (tree == NULL) {
-        printf("Error in bst2dNew: allocation error.\n");
         return NULL;
     }
     tree->root = NULL;
     tree->size = 0;
-    //tree->compfn = comparison_fn_t;
     return tree;
 }
 
-void bst2dNodeFree(BST2dNode *node, bool freeKey, bool freeValue) {
+static void BST2dNode_free(BST2dNode *node, bool freeKey, bool freeValue, bool all) {
     if (node == NULL) {
-        printf("Error in BST2dNode_free : node is NULL.\n");
-        return;
-    }
-    if (freeKey) {
-        ptFree(node->p);
-    }
-    if (freeValue) {
-        free(node->value);
-    }
-    bst2dNodeFree(node->left, freeKey, freeValue);
-    bst2dNodeFree(node->right, freeKey, freeValue);
-    free(node);
-}
-
-void bst2dFree(BST2d *bst2d, bool freeKey, bool freeValue) {
-    bst2dNodeFree(bst2d->root, freeKey, freeValue);
-    free(bst2d);
-}
-
-// le boolean all ne sert à rien pour moi donc j'ai recodé au-dessus sans lui
-/*static void BST2dNode_free(BST2dNode *node, bool freeKey, bool freeValue, bool all) {
-    if (node == NULL) {
-        printf("Error in BST2dNode_free : node is NULL.\n");
         return;
     }
     if(freeValue){
@@ -102,12 +285,13 @@ void bst2dFree(BST2d *bst2d, bool freeKey, bool freeValue) {
         BST2dNode_free(node->right,freeKey,freeValue,all);
     }
     free(node);
+    
 }
 
 void bst2dFree(BST2d *bst2d, bool freeKey, bool freeValue) {
     BST2dNode_free(bst2d->root,freeKey,freeValue,true);
     free(bst2d);
-}*/
+}
 
 static bool insertion(BST2dNode *node, Point *point, bool vertical,void* value) {
     if (node == NULL) {
@@ -196,25 +380,39 @@ size_t bst2dSize(BST2d *bst2d){
 /* ========================================================================= *
  * BST2d functions
  * ========================================================================= */
+/* ------------------------------------------------------------------------- *
+ * Returns the value associated to a position, if any. If several values are
+ * associated to this position, any one of them is returned.
+ *
+ * PARAMETERS
+ * bst          A valid pointer to a BST2d object
+ * q            The position to look for
+ *
+ * RETURN
+ * res          One of the value corresponding to that key. Or NULL if the key
+ *              is not present in the BST2d
+ * ------------------------------------------------------------------------- */
+
 void *bst2dSearch(BST2d *b2d, Point *q){
-    printf("\n");
-    printf("b2d point : x = %f, y = %f",b2d->root->p->x,b2d->root->p->y);
-    printf("1\n");
+    // printf("\n");
+    // printf("0\n");
+    //printf("b2d point : x = %f, y = %f",ptGetx(b2d->root->p),ptGety(b2d->root->p));
+    // printf("1\n");
     BST2dNode *node = b2d->root;
-    printf("2\n");
+    // printf("2\n");
     if(node == NULL){
         return NULL;
     }
-    printf("3\n");
+    // printf("3\n");
     while (node != NULL) {
         //printf("je rentre dans la boucle\n");
-        printf("5\n");
+        // printf("5\n");
         if (ptCompare(node->p, q) == 0) {
-            printf("\n");
-            printf("point : x = %f, y = %f\n",ptGetx(node->p),ptGety(node->p));
+            // printf("\n");
+            // printf("point : x = %f, y = %f\n",ptGetx(node->p),ptGety(node->p));
             return node->p;
         }
-        printf("6\n");
+        //printf("6\n");
         if (node->vertical) {
             if (ptGetx(q) < ptGetx(node->p)) {
                 node = node->left;
@@ -228,9 +426,9 @@ void *bst2dSearch(BST2d *b2d, Point *q){
                 node = node->right;
             }
         }
-        printf("7\n");
+        //printf("7\n");
     }
-    printf("4\n");
+    //printf("4\n");
     return NULL;
 }
 
@@ -314,12 +512,13 @@ void bst2dAverageNodeDepthRecursive(BST2dNode *node, int current_depth, List* al
     if (node == NULL) {
         return;
     }
-    void* current_depth_temp = (void*)&current_depth;
+    void* current_depth_temp = (void*) &current_depth;
     listInsertLast(all_depth, current_depth_temp);
     current_depth++;
     bst2dAverageNodeDepthRecursive(node->left, current_depth, all_depth);
     bst2dAverageNodeDepthRecursive(node->right, current_depth, all_depth);
 }
+
 
 double bst2dAverageNodeDepth(BST2d *bst2d) {
     if (bst2d == NULL){

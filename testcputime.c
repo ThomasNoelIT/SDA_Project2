@@ -147,8 +147,17 @@ int main(int argc, char **argv)
     printf("   Average list size: %f\n", avgsize);
 
     pdctFree(pd);
-    listFree(lpoints, true);
-    listFree(lvalues, true);
-    free(lp);
+    listFree(lpoints, false);
+    listFree(lvalues, false);
+    //peut on s en passer?
+    // printf("   Freeing data...\n");
+    // for (size_t i = 0; i<ntotal; i++) {
+    //     printf("   Freeing data %zu...\n", i);
+	//     ptFree(lp[i]);
+	//     free(lv[i]);
+    //     printf("   Freed data %zu done ...\n", i);
+    // }
+    // printf("Done\n");
     free(lv);
+    free(lp);
 }

@@ -288,6 +288,24 @@ static void BST2dNode_free(BST2dNode *node, bool freeKey, bool freeValue, bool a
     
 }
 
+// //print bst2d recursive
+// void bst2dPrintRecursive(BST2dNode *node){
+//     if (node == NULL) {
+//         return;
+//     }
+//     printf("node = (%f,%f)\n",ptGetx(node->p),ptGety(node->p));
+//     bst2dPrintRecursive(node->left);
+//     bst2dPrintRecursive(node->right);
+// }
+
+// //print bst2d
+// void bst2dPrint(BST2d *bst2d){
+//     BST2dNode *node = bst2d->root;
+//     printf("root = (%f,%f)\n",ptGetx(node->p),ptGety(node->p));
+//     bst2dPrintRecursive(node->left);
+//     bst2dPrintRecursive(node->right);
+// }
+
 void bst2dFree(BST2d *bst2d, bool freeKey, bool freeValue) {
     BST2dNode_free(bst2d->root,freeKey,freeValue,true);
     free(bst2d);

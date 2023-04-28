@@ -68,7 +68,10 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
         printf("Error in pdctCreate: lpoints or lvalues is empty\n");
         return NULL;
     }
+    printf("\n");
     while (currPoint != NULL && currValue != NULL) {
+
+        printf("x = %p  y = %p\n", currPoint->value, currPoint->value);
 
         bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
         currPoint = currPoint->next;
@@ -86,7 +89,15 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
     return pd; // Return the pointer to the created PointDct structure
 }
 
-
+//--------------------------------------------------------------------------------------------------------------------------------
+//print du dct
+// void pdctPrint(PointDct *pd) {
+//     if (pd == NULL) {
+//         printf("Error in pdctPrint: pd is NULL\n");
+//         return;
+//     }
+//     bst2dPrint(pd->bst2d);
+// }
 // //--------------------------------------------------------------------------------------------------------------------------------
 
 // BST2dNode *bstNodeCreate(void *key, void *value){

@@ -14,22 +14,10 @@
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-typedef struct BNode_t BNode;
-
-struct BNode_t
-{
-    BNode *left;
-    BNode *right;
-    void *key;
-    void *value;
-};
-
-struct BST_t
-{
-    BNode *root;
-    size_t size;
-    int (*compfn)(void *, void *);
-};
+// typedef struct Pair{
+//     void *key;
+//     void *value;
+// } Pair;
 
 struct PointDct_t {
     BST *bst; // Pointeur vers l'arbre binaire de recherche
@@ -37,10 +25,10 @@ struct PointDct_t {
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-BNode *bstNodeCreate(void *key, void *value);
-List *pdctBallSearch(PointDct *pd, Point *q, double r);
-void bstBallSearchRec(BNode *node, List *result, Point *q, double r);
-PointDct *pdctCreate(List *lpoints, List *lvalues);
+// BNode *bstNodeCreate(void *key, void *value);
+// List *pdctBallSearch(PointDct *pd, Point *q, double r);
+// void bstBallSearchRec(BNode *node, List *result, Point *q, double r);
+// PointDct *pdctCreate(List *lpoints, List *lvalues);
 
 static int mycompare(void *a, void *b){
     Point *p1 = (Point *)a;
@@ -116,18 +104,18 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-BNode *bstNodeCreate(void *key, void *value) {
-    BNode *node = (BNode *)malloc(sizeof(BNode));
-    if (node == NULL) {
-        printf("Error in bstNodeCreate: Failed to allocate memory for BNode\n");
-        return NULL;
-    }
-    node->key = key;
-    node->value = value;
-    node->left = NULL;
-    node->right = NULL;
-    return node;
-}
+// BNode *bstNodeCreate(void *key, void *value) {
+//     BNode *node = (BNode *)malloc(sizeof(BNode));
+//     if (node == NULL) {
+//         printf("Error in bstNodeCreate: Failed to allocate memory for BNode\n");
+//         return NULL;
+//     }
+//     node->key = key;
+//     node->value = value;
+//     node->left = NULL;
+//     node->right = NULL;
+//     return node;
+// }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
@@ -136,7 +124,7 @@ void pdctFree(PointDct *pd) {
         printf("Warning in pdctFree: pd is already NULL\n");
         return;
     }
-    bstFree(pd->bst, true, true); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
+    bstFree(pd->bst, false, false); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
     free(pd); // Libérer la structure PointDct elle-même
 }
 
@@ -181,66 +169,46 @@ void *pdctExactSearch(PointDct *pd, Point *p)
     }
 }
 
-//--------------------------------------------------------------------------------------------------------------------------------
-
-void bstBallSearchRec(BNode *node, List *result, Point *center, double radius)
-{
-    if (node == NULL)
-    {
-        return;
-    }
-
-    // Calcul de la distance entre la clé du nœud et le centre du ball
-    double distance = sqrt(ptSqrDistance(node->key, center));
-
-    // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
-    if (distance <= radius)
-    {
-        listInsertLast(result, node->value); // Ajout de la valeur associée à la clé dans la liste résultat
-    }
-
-    // Recherche récursive dans les sous-arbres gauche et droit
-    bstBallSearchRec(node->left, result, center, radius);
-    bstBallSearchRec(node->right, result, center, radius);
-}
-
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-/* ------------------------------------------------------------------------- *
- * Finds the set of positions (x,y) in the Point dictionary that are included
- * in a ball of radius r and centered at the position q given as argument.
- * The function returns a list of the values associated to these positions
- * (in no particular order).
- *
- * PARAMETERS
- * pd           A valid pointer to a PointDct object
- * q            The center of the ball
- * r            The radius of the ball
- *
- * RETURN
- * l            A list containing the values in the given ball, or NULL
- *              in case of allocation error.
- *
- * NOTES
- * The list must be freed but not its content. If no elements are in the ball,
- * the function returns an empty list.
- * ------------------------------------------------------------------------- */
-List *pdctBallSearch(PointDct *pd, Point *q, double r)
-{
-    // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
-    List *result = listNew();
-    if (result == NULL)
-    {
+List *pdctBallSearch(PointDct *pd, Point *p, double r){
+    Point *temp1 = ptNew(ptGetx(p)-r, ptGety(p));
+    Point *temp2 = ptNew(ptGetx(p)+r, ptGety(p));
+    List *l = listNew();
+    if (l == NULL){
         printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
         return NULL;
     }
-
-    // Parcours de l'arbre binaire de recherche à partir de la racine
-    bstBallSearchRec(pd->bst->root, result, q, r);
+    List *result = listNew();
+    if (result == NULL){
+        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
+        return NULL;
+    }
+    l = bstRangeSearch(pd->bst, temp1, temp2);
+    ptFree(temp1);
+    ptFree(temp2);
+    bool sort;
+    for(size_t i = 0; i < listSize(l); i++){
+        void* val = bstSearch(pd->bst,l->head->value);
+        if(ptSqrDistance(l->head->value, p) <= r*r){
+            sort = listInsertLast(result, val);
+            if(sort == false){
+                printf("Error in pdctBallSearch: Failed to insert value in list\n");
+                return NULL;
+            }
+        }
+        l->head = l->head->next;
+    }
+    listFree(l, true);
+    printf("1\n");
+    //printf("result: %p\n", result->head->value);
+    //listFree(result, false);
+    printf("2\n");
 
     return result;
 }
+
 //--------------------------------------------------------------------------------------------------------------------------------
 
 #endif // POINTDCT_H

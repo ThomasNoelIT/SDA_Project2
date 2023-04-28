@@ -182,30 +182,35 @@ double bstAverageNodeDepth(BST *bst) {
 
 void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l)
 {
-    if (node == NULL)
+    if (node == NULL){
         return;
+    }
 
     int cmpMin = compare(keyMin, node->key);
     int cmpMax = compare(keyMax, node->key);
 
     // Recursively search left subtree if keyMin is less than node's key
-    if (cmpMin < 0)
+    if (cmpMin < 0){
         bstRangeSearchRec(node->left, keyMin, keyMax, compare, l);
+    }
 
     // Add node's value to the list if node's key is within the specified range
-    if (cmpMin <= 0 && cmpMax >= 0)
+    if (cmpMin <= 0 && cmpMax >= 0){
         listInsertLast(l, node->value);
+    }
 
     // Recursively search right subtree if keyMax is greater than node's key
-    if (cmpMax > 0)
+    if (cmpMax > 0){
         bstRangeSearchRec(node->right, keyMin, keyMax, compare, l);
+    }
 }
 
 List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax)
 {
     List *l = listNew();
-    if (l == NULL)
+    if (l == NULL){
         return NULL;
+    }
 
     bstRangeSearchRec(bst->root, keyMin, keyMax, bst->compfn, l);
 

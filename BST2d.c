@@ -133,7 +133,7 @@ bool bst2dInsert(BST2d *b2d, Point *point, void *value) {
     }
     b2d->size++;
     if(b2d->root == NULL){
-        b2d->root = BST2dNode_new(ptGetx(point), ptGety(point), true,value);
+        b2d->root = BST2dNode_new(ptGetx(point), ptGety(point), true, value);
         return true;
     }
     bool temp = insertion(b2d->root, point, true,value);
@@ -159,32 +159,33 @@ void *bst2dSearch(BST2d *b2d, Point *q){
         return NULL;
     }
     while (node != NULL) {
-        printf("Node actuel (%d, %d)\n", ptGetx(node->p), ptGetx(node->p));
-        printf("Comparaison de (%d, %d)\n", ptGetx(q), ptGetx(node->p));
-        printf("Comparaison de (%d, %d)\n", ptGety(q), ptGety(node->p));
+        //printf("Node actuel (%f, %f)\n", ptGetx(node->p), ptGety(node->p));
+        //printf("Comparaison de (%f, %f)\n", ptGetx(q), ptGetx(node->p));
+        //printf("Comparaison de (%f, %f)\n", ptGety(q), ptGety(node->p));
         if (ptCompare(node->p, q) == 0) {
-            printf("Aucune différence.\n");
+            //printf("Aucune différence.\n");
+            printf("Value of node : (%f)\n",node->value);
             return node->value;
         } else if (node->vertical) {
             if (ptGetx(q) < ptGetx(node->p)) {
-                printf("Comparaison selon x et va à gauche.\n");
+                //printf("Comparaison selon x et va à gauche.\n");
                 node = node->left;
             } else {
-                printf("Comparaison selon x et va à droite.\n");
+                //printf("Comparaison selon x et va à droite.\n");
                 node = node->right;
             }
         } else {
             if (ptGety(q) < ptGety(node->p)) {
-                printf("Comparaison selon y et va à gauche.\n");
+                //printf("Comparaison selon y et va à gauche.\n");
                 node = node->left;
             } else {
-                printf("Comparaison selon y et va à droite.\n");
+                //printf("Comparaison selon y et va à droite.\n");
                 node = node->right;
             }
         }
     }
     printf("Sortie de boucle.\n");
-    printf("Recherche de la position (%d, %d)\n", ptGetx(q), ptGety(q));
+    //printf("Recherche de la position (%f, %f)\n", ptGetx(q), ptGety(q));
     return NULL;
 }
 
@@ -217,6 +218,8 @@ List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
     }
     return l;
 }
+
+//--------------------------------------------------------------------------------------------------------
 
 void bst2dAverageNodeDepthRecursive(BST2dNode *node, int current_depth, List* all_depth) {
     if (node == NULL) {

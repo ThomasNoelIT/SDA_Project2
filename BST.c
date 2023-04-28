@@ -29,35 +29,12 @@ struct BST_t
     int (*compfn)(void *, void *);
 };
 
-
-/* *********************************************************************************************************************
- *
- */
-/*
-struct BST {
-    struct BSTNode *root;
-    int (*compare)(const void *, const void *);
-};
-struct BSTNode {
-    void *key;
-    void *value;
-    //int (*compare)(const void *, const void *);
-    struct BSTNode *left;
-    struct BSTNode *right;
-};
- */
-/* *********************************************************************************************************************
- *
- */
-
-
 /* Prototypes of static functions */
 
 static void bstFreeRec(BNode *n, bool freeKey, bool freeValue);
 static BNode *bnNew(void *key, void *value);
 void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l);
-size_t bstDepth(BST *bst, BNode *node);
-
+double bstAverageNodeDepthRecursive(BST *bst, BNode *node, int depth, int *count);
 
 /* Function definitions */
 
@@ -128,16 +105,10 @@ bool bstInsert(BST *bst, void *key, void *value)
     }
     BNode *prev = NULL;
     BNode *n = bst->root;
-    //printf("30\n");
     while (n != NULL)
     {
         prev = n;
-        // printf("31\n");
-        // printf("key = %p\n", key);
-        // printf("n->key = %p\n", n->key);
-        // printf("32\n");
         int cmp = bst->compfn(key, n->key);
-        //printf("33\n");
         if (cmp <= 0)
         {
             n = n->left;
@@ -146,9 +117,7 @@ bool bstInsert(BST *bst, void *key, void *value)
         {
             n = n->right;
         }
-        //printf("34\n");
     }
-    //printf("35\n");
     BNode *new = bnNew(key, value);
     if (new == NULL)
     {
@@ -163,24 +132,8 @@ bool bstInsert(BST *bst, void *key, void *value)
         prev->right = new;
     }
     bst->size++;
-    //printf("36\n");
     return true;
 }
-
-/* ------------------------------------------------------------------------- *
- * Returns the value associated to that key, if it belongs to the bst.
- * If duplicate copies of that key belongs to the bst, any one of the values
- * associated to that key is returned.
- *
- *
- * PARAMETERS
- * bst          A valid pointer to a BST object
- * key          The key to look for
- *
- * RETURN
- * res          One of the value corresponding to that key. Or NULL if the key
- *              is not present in the BST
- * ------------------------------------------------------------------------- */
 
 void *bstSearch(BST *bst, void *key)
 {
@@ -198,96 +151,34 @@ void *bstSearch(BST *bst, void *key)
         }
         else
         {
-            //printf("bstSearch: key found : %p\n", n->value);
             return n->value;
         }
     }
     return NULL;
 }
 
-/* *********************************************************************************************************************
-************************************************************************************************************************
-********************************************************************************************************************* */
-size_t bstDepth(BST *bst, BNode *node)
-{
+double bstAverageNodeDepthRecursive(BST *bst, BNode *node, int depth, int *count) {
     if (node == NULL) {
-        return 0;
+        return 0.0;
     }
 
-    size_t depth = 0;
-    BNode *current = bst->root;
-    while (current != NULL && current != node) {
-        if (node->value < current->value) {
-            current = current->left;
-        } else {
-            current = current->right;
-        }
-        depth++;
-    }
+    double leftSum = bstAverageNodeDepthRecursive(bst, node->left, depth+1, count);
+    double rightSum = bstAverageNodeDepthRecursive(bst, node->right, depth+1, count);
+    *count += 1;
 
-    return depth;
+    return (leftSum + rightSum + depth);
 }
 
-double bstAverageNodeDepth(BST *bst)
-{
-    printf("20\n");
+double bstAverageNodeDepth(BST *bst) {
     if (bst->root == NULL) {
         return 0.0;
     }
 
-    double sumDepth = 0.0;
-    size_t countNodes = 0;
-    //printf("21\n");
-    List *q = listNew();
-    //printf("22\n");
-    listInsertLast(q, bst->root);
-    //printf("23\n");
+    int count = 0;
+    double sum = bstAverageNodeDepthRecursive(bst, bst->root, 0, &count);
 
-    while (listSize(q) > 0) {
-        //printf("29\n");
-        if(q->head == NULL) {
-            break;
-        }
-        //printf("30\n");
-        //printf("value = %p\n", q->head->value);
-        BNode *n = (BNode *)q->head->value;
-        
-        //printf("31\n");
-        sumDepth += bstDepth(bst, n);
-        countNodes++;
-        //printf("32\n");
-        if (n->left != NULL) {
-            listInsertLast(q, n->left);
-        }
-        //printf("33\n");
-        if (n->right != NULL) {
-            listInsertLast(q, n->right);
-        }
-        //printf("34\n");
-
-        // Remove the front element by updating the head of the list
-        LNode *oldHead = q->head;
-        //printf("35\n");
-        q->head = q->head->next;
-        //printf("36\n");
-        free(oldHead);
-        //printf("37\n");
-    }
-    //printf("24\n");
-
-    listFree(q, false); // Pass false to not free the content of the list nodes
-    //printf("25\n");
-    return sumDepth / countNodes;
+    return sum / count;
 }
-
-
-// liste des valeurs des clés mais attention à reprendre la position aussi => on peut stocker la position dans une nouvelle structure dans bst.c où on associe la valeur de la position
-// une case pour le point pour filtrer les valeurs qui ne sont pas dans la boule et la valeur pour output (coordonnées)
-
-
-/* *********************************************************************************************************************
- * *********************************************************************************************************************
-********************************************************************************************************************* */
 
 void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l)
 {
@@ -320,21 +211,3 @@ List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax)
 
     return l;
 }
-
-// je sais pas si vraiment utile car on peut peut-être remplacer par compfn
-
-/*
-int compare(const void *a, const void *b)
-{
-    int *keyA = (int *)a;
-    int *keyB = (int *)b;
-
-    // Compare keys for sorting in increasing order
-    if (*keyA < *keyB) {
-        return -1;
-    } else if (*keyA > *keyB) {
-        return 1;
-    } else {
-        return 0;
-    }
-}*/

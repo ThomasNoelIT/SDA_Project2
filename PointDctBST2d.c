@@ -14,27 +14,13 @@
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-typedef struct BST2dNode_t BST2dNode;
-
-struct BST2dNode_t {
-    Point *p;
-    BST2dNode *left;
-    BST2dNode *right;
-    bool vertical;
-};
-
-struct BST2d_t {
-    BST2dNode *root;
-    size_t size;
-};
-
 struct PointDct_t {
     BST2d *bst2d; // Pointeur vers l'arbre binaire de recherche
 };
 
 //--------------------------------------------------------------------------------------------------------------------------------
-BST2dNode *bstNodeCreate(void *key, void *value);
-void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius);
+// BST2dNode *bstNodeCreate(void *key, void *value);
+// void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius);
 //--------------------------------------------------------------------------------------------------------------------------------
 
 PointDct *pdctCreate(List *lpoints, List *lvalues) {
@@ -68,10 +54,10 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
         printf("Error in pdctCreate: lpoints or lvalues is empty\n");
         return NULL;
     }
-    printf("\n");
+    //printf("\n");
     while (currPoint != NULL && currValue != NULL) {
 
-        printf("x = %p  y = %p\n", currPoint->value, currPoint->value);
+        //printf("point = %p  val = %p\n", currPoint->value, currValue->value);
 
         bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
         currPoint = currPoint->next;
@@ -90,36 +76,13 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
-//print du dct
-// void pdctPrint(PointDct *pd) {
-//     if (pd == NULL) {
-//         printf("Error in pdctPrint: pd is NULL\n");
-//         return;
-//     }
-//     bst2dPrint(pd->bst2d);
-// }
-// //--------------------------------------------------------------------------------------------------------------------------------
-
-// BST2dNode *bstNodeCreate(void *key, void *value){
-//     BST2dNode *node = (BST2dNode *)malloc(sizeof(BST2dNode));
-//     if (node == NULL) {
-//         printf("Error in bstNodeCreate: Failed to allocate memory for BNode\n");
-//         return NULL;
-//     }
-    
-//     node->left = NULL;
-//     node->right = NULL;
-//     return node;
-// }
-
-//--------------------------------------------------------------------------------------------------------------------------------
 
 void pdctFree(PointDct *pd){
     if (pd == NULL) {
         printf("Warning in pdctFree: pd is already NULL\n");
         return;
     }
-    bst2dFree(pd->bst2d, true, true); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
+    bst2dFree(pd->bst2d, false, false); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
     free(pd); // Libérer la structure PointDct elle-même
 }
 
@@ -184,49 +147,51 @@ void *pdctExactSearch(PointDct *pd, Point *p){
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius)
-{
-    if (node == NULL)
-    {
-        return;
-    }
+// void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius)
+// {
+//     if (node == NULL)
+//     {
+//         return;
+//     }
 
-    printf("10\n");
-    // Calcul de la distance entre la clé du nœud et le centre du ball
-    double distance = sqrt(ptSqrDistance(node->p, center));
+//     //printf("10\n");
+//     // Calcul de la distance entre la clé du nœud et le centre du ball
+//     double distance = sqrt(ptSqrDistance(node->p, center));
 
-    printf("11\n");
-    // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
-    if (distance <= radius)
-    {
-        listInsertLast(result, node->p); // Ajout de la valeur associée à la clé dans la liste résultat
-    }
+//     //printf("11\n");
+//     // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
+//     if (distance <= radius)
+//     {
+//         listInsertLast(result, node->p); // Ajout de la valeur associée à la clé dans la liste résultat
+//     }
 
-    printf("12\n");
+//     //printf("12\n");
 
-    // Recherche récursive dans les sous-arbres gauche et droit
-    bstBallSearchRec(node->left, result, center, radius);
-    printf("13\n");
-    bstBallSearchRec(node->right, result, center, radius);
-}
+//     // Recherche récursive dans les sous-arbres gauche et droit
+//     bstBallSearchRec(node->left, result, center, radius);
+//     //printf("13\n");
+//     bstBallSearchRec(node->right, result, center, radius);
+// }
 
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
 List *pdctBallSearch(PointDct *pd, Point *q, double r)
-{
-    // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
-    List *result = listNew();
-    if (result == NULL)
-    {
-        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
-        return NULL;
-    }
+{ 
+    return bst2dBallSearch(pd->bst2d, q, r);
 
-    // Parcours de l'arbre binaire de recherche à partir de la racine
-    bstBallSearchRec(pd->bst2d->root, result, q, r);
+    // // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
+    // List *result = listNew();
+    // if (result == NULL)
+    // {
+    //     printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
+    //     return NULL;
+    // }
 
-    return result;
+    // // Parcours de l'arbre binaire de recherche à partir de la racine
+    // bstBallSearchRec(pd->bst2d->root, result, q, r);
+
+    // return result;
 }
 //--------------------------------------------------------------------------------------------------------------------------------
 

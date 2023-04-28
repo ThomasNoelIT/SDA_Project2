@@ -51,6 +51,7 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 
     while (currPoint != NULL && currValue != NULL) {
         bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
+        //bst2dInsert(pd->bst2d, currPoint, currValue->value);
         currPoint = currPoint->next;
         currValue = currValue->next;
     }
@@ -98,11 +99,12 @@ void *pdctExactSearch(PointDct *pd, Point *p){
     }
     // Utiliser la fonction bstSearch pour obtenir la valeur associée à la clé p
     void* res = bst2dSearch(pd->bst2d, p);
-    printf("Recherche de la position (%d, %d)\n", ptGetx(p), ptGety(p));
+    //printf("Recherche de la position (%f, %f)\n", ptGetx(p), ptGety(p));
     if(res == NULL) {
-        printf("p is not present in the BST.\n");
+        //printf("p is not present in the BST.\n");
         return NULL;
     }
+    printf("res = (%f)\n", res);
     return res;
 }
 

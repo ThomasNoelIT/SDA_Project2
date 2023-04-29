@@ -16,6 +16,7 @@ typedef struct BNode_t BNode;
 
 struct BNode_t
 {
+    BNode *parent;
     BNode *left;
     BNode *right;
     void *key;
@@ -33,8 +34,8 @@ struct BST_t
 
 static void bstFreeRec(BNode *n, bool freeKey, bool freeValue);
 static BNode *bnNew(void *key, void *value);
-void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l);
 double bstAverageNodeDepthRecursive(BST *bst, BNode *node, int depth, int *count);
+void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l);
 
 /* Function definitions */
 
@@ -67,12 +68,6 @@ BST *bstNew(int comparison_fn_t(void *, void *))
     return bst;
 }
 
-void bstFree(BST *bst, bool freeKey, bool freeValue)
-{
-    bstFreeRec(bst->root, freeKey, freeValue);
-    free(bst);
-}
-
 void bstFreeRec(BNode *n, bool freeKey, bool freeValue)
 {
     if (n == NULL)
@@ -84,6 +79,13 @@ void bstFreeRec(BNode *n, bool freeKey, bool freeValue)
     if (freeValue)
         free(n->value);
     free(n);
+}
+
+void bstFree(BST *bst, bool freeKey, bool freeValue)
+{
+    bstFreeRec(bst->root, freeKey, freeValue);
+    //free();
+    free(bst);
 }
 
 size_t bstSize(BST *bst)
@@ -105,10 +107,16 @@ bool bstInsert(BST *bst, void *key, void *value)
     }
     BNode *prev = NULL;
     BNode *n = bst->root;
+    //printf("30\n");
     while (n != NULL)
     {
         prev = n;
+        // printf("31\n");
+        // printf("key = %p\n", key);
+        // printf("n->key = %p\n", n->key);
+        // printf("32\n");
         int cmp = bst->compfn(key, n->key);
+        //printf("33\n");
         if (cmp <= 0)
         {
             n = n->left;
@@ -117,7 +125,9 @@ bool bstInsert(BST *bst, void *key, void *value)
         {
             n = n->right;
         }
+        //printf("34\n");
     }
+    //printf("35\n");
     BNode *new = bnNew(key, value);
     if (new == NULL)
     {
@@ -132,8 +142,11 @@ bool bstInsert(BST *bst, void *key, void *value)
         prev->right = new;
     }
     bst->size++;
+    //printf("36\n");
     return true;
 }
+
+//------------------------------------------------------------------------- */
 
 void *bstSearch(BST *bst, void *key)
 {
@@ -151,12 +164,14 @@ void *bstSearch(BST *bst, void *key)
         }
         else
         {
+            //printf("bstSearch: key found : %p\n", n->value);
             return n->value;
         }
     }
     return NULL;
 }
 
+//------------------------------------------------------------------------- */
 double bstAverageNodeDepthRecursive(BST *bst, BNode *node, int depth, int *count) {
     if (node == NULL) {
         return 0.0;
@@ -179,6 +194,10 @@ double bstAverageNodeDepth(BST *bst) {
 
     return sum / count;
 }
+// liste des valeurs des clés mais attention à reprendre la position aussi => on peut stocker la position dans une nouvelle structure dans bst.c où on associe la valeur de la position
+// une case pour le point pour filtrer les valeurs qui ne sont pas dans la boule et la valeur pour output (coordonnées)
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l)
 {
@@ -188,6 +207,7 @@ void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(v
 
     int cmpMin = compare(keyMin, node->key);
     int cmpMax = compare(keyMax, node->key);
+    bool sort;
 
     // Recursively search left subtree if keyMin is less than node's key
     if (cmpMin < 0){
@@ -196,7 +216,9 @@ void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(v
 
     // Add node's value to the list if node's key is within the specified range
     if (cmpMin <= 0 && cmpMax >= 0){
-        listInsertLast(l, node->value);
+        sort = listInsertLast(l, node->key);
+        if(sort == false)
+            printf("bstRangeSearchRec: listInsertLast error\n");
     }
 
     // Recursively search right subtree if keyMax is greater than node's key
@@ -208,11 +230,115 @@ void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(v
 List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax)
 {
     List *l = listNew();
-    if (l == NULL){
+    if (l == NULL)
         return NULL;
-    }
 
     bstRangeSearchRec(bst->root, keyMin, keyMax, bst->compfn, l);
 
     return l;
 }
+
+
+
+
+// List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax){
+//     List *l = listNew();
+//     if (l == NULL)
+//         return NULL;
+
+//     BNode *n = bst->root;
+//     printf("1\n");
+//     while (n != NULL)
+//     {
+//         printf("2\n");
+//         int cmpMin = bst->compfn(keyMin, n->key);
+//         int cmpMax = bst->compfn(keyMax, n->key);
+//         bool sort;
+
+//         if (n == NULL){
+//             n = n->parent;
+//         }
+
+//         printf("3\n");
+//         // Recursively search left subtree if keyMin is less than node's key
+//         if (cmpMin < 0){
+//             printf("10\n");
+//             n = n->left;
+//         }
+
+//         printf("4\n");
+//         // Add node's value to the list if node's key is within the specified range
+//         if (cmpMin <= 0 && cmpMax >= 0){
+//             printf("11\n");
+//             sort = listInsertLast(l, n->key);
+//             if(sort == false)
+//                 printf("bstRangeSearchRec: listInsertLast error\n");
+//             n = n->right;
+//         }
+
+//         printf("5\n");
+//         // Recursively search right subtree if keyMax is greater than node's key
+//         if (cmpMax > 0){
+//             printf("12\n");
+//             n = n->right;
+//         }
+//         printf("6\n");
+//     }
+//     printf("7\n");
+
+//     return l;
+// }
+
+
+
+// List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax){
+//     BNode *node = bst->root;
+
+//     List *l = listNew();
+//     if (l == NULL)
+//         return NULL;
+
+//     List *l2 = listNew();
+//     if (l2 == NULL)
+//         return NULL;
+
+//     //printf("1\n");
+//     //int i = 0;
+
+//     while (node != NULL) {
+//         // printf("i = %d\n", i);
+
+//         //printf("2\n");
+//         int cmpMin = bst->compfn(keyMin, node->key);
+//         int cmpMax = bst->compfn(keyMax, node->key);
+//         //printf("3\n");
+//         if (node == NULL){
+//             return l;
+//         }
+//         //printf("4\n");
+//         if (cmpMin < 0) {
+//             //printf("8\n");
+//             node = node->left;
+//         } else if (cmpMin <= 0 && cmpMax >= 0) {
+//             //printf("9\n");
+//             listInsertLast(l, node->key);
+//             //printf("10\n");
+//             l2 = bstRangeSearch(bst, keyMin, keyMax);
+//             for(size_t i = 0; i < listSize(l2); i++){
+//                 listInsertLast(l, l2->head->value);
+//                 l2->head = l2->head->next;
+//             }
+//             //printf("11\n");
+//             node = node->right;
+//         } else {
+//             //printf("12\n");
+//             node = node->right;
+//         }
+//         // i++;
+//         //printf("5\n");
+//     }
+//     //printf("6\n");
+
+//     return l;
+// }
+

@@ -19,7 +19,6 @@ typedef struct Sum_t {
     size_t nb_nodes;
 } Sum;
 
-
 struct BST2dNode_t {
     Point *p;
     BST2dNode *left;
@@ -206,31 +205,6 @@ static void bst2dBallSearch_rec(BST2d *bst2d,Point *q,double r, BST2dNode *node,
 
 // -------------------------------------------------------------------------------------------------------
 
-// Fonction pour calculer le nombre de nœuds dans un BST2D
-size_t bst2dCountNodes(BST2dNode *node) {
-    if (node == NULL) {
-        return 0;
-    }
-
-    // Utilisation d'une approche récursive pour compter les nœuds dans le sous-arbre gauche et le sous-arbre droit
-    size_t leftCount = bst2dCountNodes(node->left);
-    size_t rightCount = bst2dCountNodes(node->right);
-
-    // Retourne le total des nœuds du sous-arbre gauche, du sous-arbre droit et du nœud courant
-    return leftCount + rightCount + 1;
-}
-
-// void bst2dAverageNodeDepthRecursive(BST2dNode *node, int current_depth, List* all_depth) {
-//     if (node == NULL) {
-//         return;
-//     }
-//     // void* current_depth_temp = (void*) &current_depth;
-//     // listInsertLast(all_depth, current_depth_temp);
-//     // current_depth++;
-//     // bst2dAverageNodeDepthRecursive(node->left, current_depth, all_depth);
-//     // bst2dAverageNodeDepthRecursive(node->right, current_depth, all_depth);
-// }
-
 Sum bst2dAverageNodeDepthRecursive(BST2dNode*node){
     if (node == NULL){
         Sum sum = {0,0};
@@ -239,14 +213,14 @@ Sum bst2dAverageNodeDepthRecursive(BST2dNode*node){
     Sum left = bst2dAverageNodeDepthRecursive(node->left);
     Sum right = bst2dAverageNodeDepthRecursive(node->right);
     size_t nb_nodes = left.nb_nodes + right.nb_nodes + 1;
+    //printf("nb_nodes : %ld \n", nb_nodes);
     size_t sum = left.sum + right.sum + nb_nodes - 1;
+    //printf("sum : %ld \n", sum);
     Sum sum2 = {nb_nodes, sum};
     return sum2;
 }
 
-
 double bst2dAverageNodeDepth(BST2d *bst2d) {
-    printf("bst2dAverageNodeDepth\n");
     if (bst2d == NULL){
         printf("Error in bst2dAverageNodeDepth : bst2d is NULL.\n");
         return 0.0;
@@ -255,26 +229,9 @@ double bst2dAverageNodeDepth(BST2d *bst2d) {
         printf("Error in bst2dAverageNodeDepth : root is NULL.\n");
         return 0.0;
     }
-    //int size_tree = bst2d->size;
-
-    //List *all_depth = listNew();
-    // if (all_depth == NULL){
-    //     printf("Error in bst2dAverageNodeDepth : size_tree is NULL.\n");
-    //     return 0.0;
-    // }
     Sum sum_depth = bst2dAverageNodeDepthRecursive(bst2d->root);
-
-    double average = 0.0;
-    //size_t nodeCount = bst2dCountNodes(bst2d->root);
-    // LNode *currDepth = all_depth->head;
-    // while(currDepth != NULL){
-    //     double extractedValue = *(double*)(currDepth->value);
-    //     average += extractedValue;
-    //     currDepth = currDepth->next;
-    // }
-    average = sum_depth.sum/sum_depth.nb_nodes;
-
-    // listFree(all_depth,true);
-    // free(all_depth);
+    double average = (double)sum_depth.sum / sum_depth.nb_nodes;
+    //double average = sum_depth.sum/sum_depth.nb_nodes;
+    //printf("average : %f \n", average);
     return average;
 }

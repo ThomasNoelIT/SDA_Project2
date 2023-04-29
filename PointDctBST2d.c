@@ -49,6 +49,8 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 
     LNode *currPoint = lpoints->head;
     LNode *currValue = lvalues->head;
+    printf("\n lpoints->head dont la valeur vaut : (%f)\n",currPoint->value);
+    printf("lvalue->head dont la valeur vaut : (%f)\n",currValue->value);
     
     if(currPoint == NULL || currValue == NULL) {
         printf("Error in pdctCreate: lpoints or lvalues is empty\n");
@@ -60,6 +62,8 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
         //printf("point = %p  val = %p\n", currPoint->value, currValue->value);
 
         bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
+        //printf("Adresse de la valeur trouvée : %p\n", (void *) currValue->value);
+        //printf("Correspondance dont la valeur vaut : (%f)\n",currValue->value);
         currPoint = currPoint->next;
         currValue = currValue->next;
     }
@@ -127,6 +131,7 @@ void *pdctExactSearch(PointDct *pd, Point *p){
     void* val = bst2dSearch(pd->bst2d, p);
     if(val == NULL) {
         //printf("Error in pdctSearch: p is not present in the BST\n");
+        //printf("res = %f\n", val);
         return NULL;
     }
     return val;
@@ -179,6 +184,7 @@ void *pdctExactSearch(PointDct *pd, Point *p){
 List *pdctBallSearch(PointDct *pd, Point *q, double r)
 { 
     return bst2dBallSearch(pd->bst2d, q, r);
+}
 
     // // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
     // List *result = listNew();
@@ -192,7 +198,7 @@ List *pdctBallSearch(PointDct *pd, Point *q, double r)
     // bstBallSearchRec(pd->bst2d->root, result, q, r);
 
     // return result;
-}
+
 //--------------------------------------------------------------------------------------------------------------------------------
 
 #endif // POINTDCT_H

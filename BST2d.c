@@ -1,4 +1,3 @@
-
 /* ========================================================================= *
  * BST2d definition
  * ========================================================================= */
@@ -14,6 +13,15 @@
 
 //void bst2dAverageNodeDepthRecursive(BST2dNode *node, int current_depth, List* depth);
 
+typedef struct BST2dNode_t BST2dNode;
+
+struct BST2dNode_t {
+    Point *p;
+    BST2dNode *left;
+    BST2dNode *right;
+    bool vertical;
+    void* value;
+};
 
 struct BST2d_t {
     BST2dNode *root;
@@ -27,25 +35,25 @@ typedef struct Sum_t {
 } Sum;
 
 
-// size_t bst2dCountNodes(BST2dNode *node);
-// Sum bst2dAverageNodeDepthRecursive(BST2dNode*node);
+size_t bst2dCountNodes(BST2dNode *node);
+Sum bst2dAverageNodeDepthRecursive(BST2dNode*node);
 
 /* ========================================================================= *
  * BST2d interaction functions
  * ========================================================================= */
 
-// static BST2dNode *BST2dNode_new(Point *point, bool vertical,void* value) {
-//     BST2dNode *node = malloc(sizeof(BST2dNode));
-//     if (node == NULL) {
-//         return NULL;
-//     }
-//     node->p = point;
-//     node->vertical = vertical;
-//     node->left = NULL;
-//     node->right = NULL;
-//     node->value = value;
-//     return node;
-// }
+ static BST2dNode *BST2dNode_new(Point *point, bool vertical,void* value) {
+     BST2dNode *node = malloc(sizeof(BST2dNode));
+     if (node == NULL) {
+         return NULL;
+     }
+     node->p = point;
+     node->vertical = vertical;
+     node->left = NULL;
+     node->right = NULL;
+     node->value = value;
+     return node;
+}
 
 BST2d *bst2dNew(void){
     //printf("bst2dNew\n");
@@ -74,10 +82,14 @@ static void BST2drec(BST2dNode *node, bool freeKey, bool freeValue ){
     
 }
 
+//--------------------------------------------------------------------------------------------------------
+
 void bst2dFree(BST2d *bst2d, bool freeKey, bool freeValue) {
     BST2drec(bst2d->root,freeKey,freeValue);
     free(bst2d);
 }
+
+//--------------------------------------------------------------------------------------------------------
 
 static bool insertion(BST2dNode *node, Point *point, bool vertical,void* value) {
     //printf("insertion\n");
@@ -122,6 +134,8 @@ static bool insertion(BST2dNode *node, Point *point, bool vertical,void* value) 
     }
 }
 
+//--------------------------------------------------------------------------------------------------------
+
 bool bst2dInsert(BST2d *b2d, Point *point, void *value) {
     if (b2d == NULL) {
         return false;
@@ -135,18 +149,25 @@ bool bst2dInsert(BST2d *b2d, Point *point, void *value) {
     return temp;
 }
 
+//--------------------------------------------------------------------------------------------------------
+
 size_t bst2dSize(BST2d *bst2d){
     return bst2d->size;
 }
 
+//--------------------------------------------------------------------------------------------------------
 
 void *bst2dSearch(BST2d *b2d, Point *q){
-    // BST2dNode *node = b2d->root;
+    BST2dNode *node = b2d->root;
     // if(node == NULL){
     //     return NULL;
     // }
     while (node != NULL) {
+        //printf("Node actuel (%f, %f)\n", ptGetx(node->p), ptGety(node->p));
+        //printf("Adresse de la valeur trouvée : %p\n", (void *) node->value);
         if (ptCompare(node->p, q) == 0) {
+            //printf("Adresse de la valeur trouvée : %p\n", (void *) node->value);
+            //printf("Correspondance dont la valeur vaut : (%f)\n",node->value);
             return node->value;
         }
         if (node->vertical) {
@@ -163,9 +184,11 @@ void *bst2dSearch(BST2d *b2d, Point *q){
             }
         }
     }
+    //printf("Sortie de boucle.\n");
     return NULL;
 }
 
+//--------------------------------------------------------------------------------------------------------
 
 List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
     List *l = listNew();
@@ -193,6 +216,8 @@ List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
     }
     return l;
 }
+
+//--------------------------------------------------------------------------------------------------------
 
 // Fonction pour calculer le nombre de nœuds dans un BST2D
 size_t bst2dCountNodes(BST2dNode *node) {

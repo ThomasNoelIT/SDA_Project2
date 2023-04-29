@@ -173,7 +173,6 @@ void *bst2dSearch(BST2d *b2d, Point *q){
 }
 
 // ------------------------------------------------------------------------------------------------------
-
 static void bst2dBallSearch_rec(BST2d *bst2d,Point *q,double r, BST2dNode *node,List *l);
 
 List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
@@ -197,53 +196,14 @@ static void bst2dBallSearch_rec(BST2d *bst2d,Point *q,double r, BST2dNode *node,
     if (ptSqrDistance(node->p, q) <= r * r) {
         listInsertLast(l, node->p);
     }
-    if (node->vertical) {
-        if (ptGetx(q) < ptGetx(node->p)) {
-            bst2dBallSearch_rec(bst2d,q,r,node->left,l);
-        } else {
-            bst2dBallSearch_rec(bst2d,q,r,node->right,l);
-        }
-    } else {
-        if (ptGety(q) < ptGety(node->p)) {
-            bst2dBallSearch_rec(bst2d,q,r,node->left,l);
-        } else {
-            bst2dBallSearch_rec(bst2d,q,r,node->right,l);
-        }
+    if (node->left != NULL) {
+        bst2dBallSearch_rec(bst2d,q,r,node->left,l);
+    }
+    if (node->right != NULL) {
+        bst2dBallSearch_rec(bst2d,q,r,node->right,l);
     }
 }
 
-/*
-List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
-    List *l = listNew();
-    if (l == NULL) {
-        return NULL;
-    }
-    BST2dNode *node = bst2d->root;
-    if (node == NULL) {
-        return NULL;
-    }
-
-    while (node != NULL) {
-        if (ptSqrDistance(node->p, q) <= r * r) {
-            listInsertLast(l, node->p);
-        }
-        if (node->vertical) {
-            if (ptGetx(q) < ptGetx(node->p)) {
-                node = node->left;
-            } else {
-                node = node->right;
-            }
-        } else {
-            if (ptGety(q) < ptGety(node->p)) {
-                node = node->left;
-            } else {
-                node = node->right;
-            }
-        }
-    }
-    return l;
-}
-*/
 // -------------------------------------------------------------------------------------------------------
 
 // Fonction pour calculer le nombre de nœuds dans un BST2D
@@ -269,8 +229,6 @@ size_t bst2dCountNodes(BST2dNode *node) {
 //     // current_depth++;
 //     // bst2dAverageNodeDepthRecursive(node->left, current_depth, all_depth);
 //     // bst2dAverageNodeDepthRecursive(node->right, current_depth, all_depth);
-
-
 // }
 
 Sum bst2dAverageNodeDepthRecursive(BST2dNode*node){

@@ -14,13 +14,27 @@
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
+typedef struct BST2dNode_t BST2dNode;
+
+struct BST2dNode_t {
+    Point *p;
+    BST2dNode *left;
+    BST2dNode *right;
+    bool vertical;
+};
+
+struct BST2d_t {
+    BST2dNode *root;
+    size_t size;
+};
+
 struct PointDct_t {
     BST2d *bst2d; // Pointeur vers l'arbre binaire de recherche
 };
 
 //--------------------------------------------------------------------------------------------------------------------------------
-// BST2dNode *bstNodeCreate(void *key, void *value);
-// void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius);
+BST2dNode *bstNodeCreate(void *key, void *value);
+void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius);
 //--------------------------------------------------------------------------------------------------------------------------------
 
 PointDct *pdctCreate(List *lpoints, List *lvalues) {
@@ -49,8 +63,6 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 
     LNode *currPoint = lpoints->head;
     LNode *currValue = lvalues->head;
-    printf("\n lpoints->head dont la valeur vaut : (%f)\n",currPoint->value);
-    printf("lvalue->head dont la valeur vaut : (%f)\n",currValue->value);
     
     if(currPoint == NULL || currValue == NULL) {
         printf("Error in pdctCreate: lpoints or lvalues is empty\n");
@@ -62,8 +74,6 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
         //printf("point = %p  val = %p\n", currPoint->value, currValue->value);
 
         bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
-        //printf("Adresse de la valeur trouvée : %p\n", (void *) currValue->value);
-        //printf("Correspondance dont la valeur vaut : (%f)\n",currValue->value);
         currPoint = currPoint->next;
         currValue = currValue->next;
     }
@@ -131,7 +141,6 @@ void *pdctExactSearch(PointDct *pd, Point *p){
     void* val = bst2dSearch(pd->bst2d, p);
     if(val == NULL) {
         //printf("Error in pdctSearch: p is not present in the BST\n");
-        //printf("res = %f\n", val);
         return NULL;
     }
     return val;
@@ -152,31 +161,31 @@ void *pdctExactSearch(PointDct *pd, Point *p){
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-// void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius)
-// {
-//     if (node == NULL)
-//     {
-//         return;
-//     }
+void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius)
+{
+    if (node == NULL)
+    {
+        return;
+    }
 
-//     //printf("10\n");
-//     // Calcul de la distance entre la clé du nœud et le centre du ball
-//     double distance = sqrt(ptSqrDistance(node->p, center));
+    //printf("10\n");
+    // Calcul de la distance entre la clé du nœud et le centre du ball
+    double distance = sqrt(ptSqrDistance(node->p, center));
 
-//     //printf("11\n");
-//     // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
-//     if (distance <= radius)
-//     {
-//         listInsertLast(result, node->p); // Ajout de la valeur associée à la clé dans la liste résultat
-//     }
+    //printf("11\n");
+    // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
+    if (distance <= radius)
+    {
+        listInsertLast(result, node->p); // Ajout de la valeur associée à la clé dans la liste résultat
+    }
 
-//     //printf("12\n");
+    //printf("12\n");
 
-//     // Recherche récursive dans les sous-arbres gauche et droit
-//     bstBallSearchRec(node->left, result, center, radius);
-//     //printf("13\n");
-//     bstBallSearchRec(node->right, result, center, radius);
-// }
+    // Recherche récursive dans les sous-arbres gauche et droit
+    bstBallSearchRec(node->left, result, center, radius);
+    //printf("13\n");
+    bstBallSearchRec(node->right, result, center, radius);
+}
 
 
 //--------------------------------------------------------------------------------------------------------------------------------
@@ -184,22 +193,20 @@ void *pdctExactSearch(PointDct *pd, Point *p){
 List *pdctBallSearch(PointDct *pd, Point *q, double r)
 { 
     return bst2dBallSearch(pd->bst2d, q, r);
+    
+    // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
+    List *result = listNew();
+    if (result == NULL)
+    {
+        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
+        return NULL;
+    }
+
+    // Parcours de l'arbre binaire de recherche à partir de la racine
+    bstBallSearchRec(pd->bst2d->root, result, q, r);
+
+    return result;
 }
-
-    // // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
-    // List *result = listNew();
-    // if (result == NULL)
-    // {
-    //     printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
-    //     return NULL;
-    // }
-
-    // // Parcours de l'arbre binaire de recherche à partir de la racine
-    // bstBallSearchRec(pd->bst2d->root, result, q, r);
-
-    // return result;
-
 //--------------------------------------------------------------------------------------------------------------------------------
 
 #endif // POINTDCT_H
-

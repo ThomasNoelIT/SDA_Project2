@@ -185,8 +185,8 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r){
         printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
         return NULL;
     }
-    printf("adresse de l: %p\n", &l);
-    printf("adresse de result: %p\n", &result);
+    //printf("adresse de l: %p\n", &l);
+    //printf("adresse de result: %p\n", &result);
     l = bstRangeSearch(pd->bst, temp1, temp2);
     ptFree(temp1);
     ptFree(temp2);
@@ -203,10 +203,10 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r){
         l->head = l->head->next;
     }
     listFree(l, true);
-    printf("1\n");
+    //printf("1\n");
     //printf("result: %p\n", result->head->value);
     //listFree(result, false);
-    printf("2\n");
+    //printf("2\n");
 
     return result;
 }
@@ -214,4 +214,3 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r){
 //--------------------------------------------------------------------------------------------------------------------------------
 
 #endif // POINTDCT_H
-

@@ -10,19 +10,21 @@
 #include "Point.h"
 #include "List.h"
 #include "PointDct.h"
-#include "BST2d.h" // Include the BST2d header file for using the BST data structure
+#include "BST2d.h"
 
 //--------------------------------------------------------------------------------------------------------------------------------
-
+// PointDct structure definition
 typedef struct BST2dNode_t BST2dNode;
 
-struct BST2dNode_t {
-    Point *p;
-    BST2dNode *left;
-    BST2dNode *right;
-    bool vertical;
-};
+//structure for node of the binary search tree
+// struct BST2dNode_t {
+//     Point *p;
+//     BST2dNode *left;
+//     BST2dNode *right;
+//     bool vertical;
+// };
 
+//structure for the binary search tree
 struct BST2d_t {
     BST2dNode *root;
     size_t size;
@@ -114,19 +116,6 @@ size_t pdctSize(PointDct *pd){
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-/* ------------------------------------------------------------------------- *
- * Returns the value associated to a point, if it belongs to the PointDct.
- * If several duplicate copies of that point belongs to pd, any one of the
- * values associated to that key is returned.
- *
- * PARAMETERS
- * pd           A valid pointer to a PointDct object
- * p            The point to look for
- *
- * RETURN
- * res          One of the value corresponding to that point. Or NULL if
- *              the point is not present in the BST
- * ------------------------------------------------------------------------- */
 void *pdctExactSearch(PointDct *pd, Point *p){
     if (pd == NULL) {
         printf("Error in pdctSearch: pd is NULL\n");
@@ -145,68 +134,11 @@ void *pdctExactSearch(PointDct *pd, Point *p){
     }
     return val;
 }
-// void *pdctExactSearch(PointDct *pd, Point *p)
-// {
-//     void* val = bst2dSearch(pd->bst2d, p);
-//     // printf("node: %p\n", val);
-//     if (val != NULL)
-//     {
-//         return val;
-//     }
-//     else
-//     {
-//         return NULL;
-//     }
-// }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
-void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius)
-{
-    if (node == NULL)
-    {
-        return;
-    }
-
-    //printf("10\n");
-    // Calcul de la distance entre la clé du nœud et le centre du ball
-    double distance = sqrt(ptSqrDistance(node->p, center));
-
-    //printf("11\n");
-    // Si la distance est inférieure ou égale au rayon du ball, alors la clé est incluse dans le ball
-    if (distance <= radius)
-    {
-        listInsertLast(result, node->p); // Ajout de la valeur associée à la clé dans la liste résultat
-    }
-
-    //printf("12\n");
-
-    // Recherche récursive dans les sous-arbres gauche et droit
-    bstBallSearchRec(node->left, result, center, radius);
-    //printf("13\n");
-    bstBallSearchRec(node->right, result, center, radius);
+List *pdctBallSearch(PointDct *pd, Point *p, double r){
+    return bst2dBallSearch(pd->bst2d, p, r);
 }
-
-
-//--------------------------------------------------------------------------------------------------------------------------------
-
-List *pdctBallSearch(PointDct *pd, Point *q, double r)
-{ 
-    return bst2dBallSearch(pd->bst2d, q, r);
-    
-    // Création d'une nouvelle liste pour stocker les valeurs incluses dans le ball
-    List *result = listNew();
-    if (result == NULL)
-    {
-        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
-        return NULL;
-    }
-
-    // Parcours de l'arbre binaire de recherche à partir de la racine
-    bstBallSearchRec(pd->bst2d->root, result, q, r);
-
-    return result;
-}
-//--------------------------------------------------------------------------------------------------------------------------------
 
 #endif // POINTDCT_H

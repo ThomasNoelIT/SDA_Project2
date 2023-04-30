@@ -112,16 +112,10 @@ void *pdctExactSearch(PointDct *pd, Point *p){
 List *pdctBallSearch(PointDct *pd, Point *p, double r){
     void* val;
     bool sort;
+
     Point *temp1 = ptNew(ptGetx(p)-r, ptGety(p));
-    if(temp1 == NULL){
-        //printf("Error in pdctBallSearch: Failed to allocate memory for Point\n");
-        return NULL;
-    }
     Point *temp2 = ptNew(ptGetx(p)+r, ptGety(p));
-    if(temp2 == NULL){
-        //printf("Error in pdctBallSearch: Failed to allocate memory for Point\n");
-        return NULL;
-    }
+
     List *result = listNew();
     if (result == NULL){
         //printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
@@ -129,6 +123,7 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r){
     }
 
     List* l_point = bstRangeSearch(pd->bst, temp1, temp2); // return a list of points
+
     if(l_point == NULL){
         //printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
         return NULL;
@@ -137,10 +132,7 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r){
     
     while(curr != NULL){
         val = bstSearch(pd->bst,curr->value);
-        if(val == NULL){
-            //printf("Error in pdctBallSearch: Failed to search value in bst\n");
-            return NULL;
-        }
+        
         if(ptSqrDistance(curr->value, p) <= r*r){
             sort = listInsertLast(result, val);
             if(sort == false){

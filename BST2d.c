@@ -171,7 +171,7 @@ void *bst2dSearch(BST2d *b2d, Point *q){
 }
 
 // ------------------------------------------------------------------------------------------------------
-static void bst2dBallSearch_rec(BST2d *bst2d,Point *q,double r, BST2dNode *node,List *l);
+static void bst2dBallSearchRecursive(BST2d *bst2d,Point *q,double r, BST2dNode *node,List *l);
 
 List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
     // ajouter if supp pour intput
@@ -183,11 +183,11 @@ List *bst2dBallSearch(BST2d *bst2d, Point *q, double r){
     if (node == NULL) {
         return NULL;
     }
-    bst2dBallSearch_rec(bst2d,q,r,node,l);
+    bst2dBallSearchRecursive(bst2d,q,r,node,l);
     return l;
 }
 
-static void bst2dBallSearch_rec(BST2d *bst2d,Point *q,double r, BST2dNode *node,List *l){
+static void bst2dBallSearchRecursive(BST2d *bst2d,Point *q,double r, BST2dNode *node,List *l){
     if (node == NULL) {
         return;
     }
@@ -195,34 +195,37 @@ static void bst2dBallSearch_rec(BST2d *bst2d,Point *q,double r, BST2dNode *node,
         listInsertLast(l, node->p);
     }
     if (node->left != NULL) {
-        bst2dBallSearch_rec(bst2d,q,r,node->left,l);
+        bst2dBallSearchRecursive(bst2d,q,r,node->left,l);
     }
     if (node->right != NULL) {
-        bst2dBallSearch_rec(bst2d,q,r,node->right,l);
+        bst2dBallSearchRecursive(bst2d,q,r,node->right,l);
     }
 }
 
 // -------------------------------------------------------------------------------------------------------
-Sum bst2dAverageNodeDepthRecursive(BST2dNode*node);
-Sum bst2dAverageNodeDepthRecursive(BST2dNode *node) {
-    if (node == NULL) {
-        Sum sum = {0, 0};
-        return sum;
+static void bst2dAverageNodeDepthRecursive(BST2dNode *node, int* total_depth, int node_depth);
+
+// Cette fonction calcule la profondeur moyenne des nœuds dans un BST2D
+static void bst2dAverageNodeDepthRecursive(BST2dNode *node, int* total_depth, int node_depth){
+    if (node->left != NULL){
+       *total_depth += node_depth + 1;
+       bst2dAverageNodeDepthRecursive(node->left, total_depth, node_depth + 1);
     }
-    Sum left = bst2dAverageNodeDepthRecursive(node->left);
-    Sum right = bst2dAverageNodeDepthRecursive(node->right);
-    size_t nb_nodes = left.nb_nodes + right.nb_nodes + 1;
-    size_t sum = left.sum + right.sum + nb_nodes - 1;
-    Sum sum2 = {nb_nodes, sum};
-    return sum2;
+    if (node->right != NULL){
+        *total_depth += node_depth + 1;
+        bst2dAverageNodeDepthRecursive(node->right, total_depth, node_depth + 1);
+    }
 }
 
-double bst2dAverageNodeDepth(BST2d *bst2d) {
-    if (bst2d == NULL || bst2d->root == NULL) {
-        printf("Error in bst2dAverageNodeDepth: bst2d or root is NULL.\n");
-        return 0.0;
-    }
-    Sum sum_depth = bst2dAverageNodeDepthRecursive(bst2d->root);
-    double average_depth = (double) sum_depth.sum / (double) sum_depth.nb_nodes;
+double bst2dAverageNodeDepth(BST2d *bst2d){
+    int *total_depth = malloc(sizeof(int));
+    *total_depth = 0; 
+
+    bst2dAverageNodeDepthRecursive(bst2d->root, total_depth, 0);
+
+    double average_depth = (double)*total_depth/(bst2d->size);
+
+    free(total_depth);
+
     return average_depth;
 }

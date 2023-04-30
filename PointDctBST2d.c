@@ -16,128 +16,140 @@
 // PointDct structure definition
 typedef struct BST2dNode_t BST2dNode;
 
-//structure for node of the binary search tree
-// struct BST2dNode_t {
-//     Point *p;
-//     BST2dNode *left;
-//     BST2dNode *right;
-//     bool vertical;
-// };
-
 //structure for the binary search tree
 struct BST2d_t {
     BST2dNode *root;
     size_t size;
 };
 
+//structure for the dictionary binary search tree
 struct PointDct_t {
     BST2d *bst2d; // Pointeur vers l'arbre binaire de recherche
 };
 
 //--------------------------------------------------------------------------------------------------------------------------------
-BST2dNode *bstNodeCreate(void *key, void *value);
-void bstBallSearchRec(BST2dNode *node, List *result, Point *center, double radius);
-//--------------------------------------------------------------------------------------------------------------------------------
-
+// Create a new PointDct structure
 PointDct *pdctCreate(List *lpoints, List *lvalues) {
-    PointDct *pd = (PointDct *)malloc(sizeof(PointDct));
-    if (pd == NULL) {
-        printf("Error in pdctCreate: Failed to allocate memory for PointDct\n");
-        return NULL;
-    }
     if (lpoints == NULL) {
-        printf("Error in pdctCreate: lpoints is NULL\n");
+        //printf("Error in pdctCreate: lpoints is NULL\n");
         return NULL;
     }
     if (lvalues == NULL) {
-        printf("Error in pdctCreate: lvalues is NULL\n");
+        //printf("Error in pdctCreate: lvalues is NULL\n");
         return NULL;
     }
     if(lpoints->size != lvalues->size) {
-        printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
+        //printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
         return NULL;
     }
+
+    PointDct *pd = (PointDct *)malloc(sizeof(PointDct));
+    if (pd == NULL) {
+        //printf("Error in pdctCreate: Failed to allocate memory for PointDct\n");
+        return NULL;
+    }
+
     pd->bst2d = bst2dNew();
     if (pd->bst2d == NULL) {
-        printf("Error in pdctCreate: Failed to allocate memory for BST2d\n");
+        //printf("Error in pdctCreate: Failed to allocate memory for BST2d\n");
         return NULL;
     }
 
     LNode *currPoint = lpoints->head;
-    LNode *currValue = lvalues->head;
-    
-    if(currPoint == NULL || currValue == NULL) {
-        printf("Error in pdctCreate: lpoints or lvalues is empty\n");
+    if(currPoint == NULL) {
+        //printf("Error in pdctCreate: lpoints is empty\n");
         return NULL;
     }
-    //printf("\n");
+
+    LNode *currValue = lvalues->head;
+    if(currValue == NULL) {
+        //printf("Error in pdctCreate: lvalues is empty\n");
+        return NULL;
+    }
+    
+    if(currPoint == NULL || currValue == NULL) {
+        //printf("Error in pdctCreate: lpoints or lvalues is empty\n");
+        return NULL;
+    }
+
+    bool temp;
+
     while (currPoint != NULL && currValue != NULL) {
-
-        //printf("point = %p  val = %p\n", currPoint->value, currValue->value);
-
-        bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
+        temp = bst2dInsert(pd->bst2d, currPoint->value, currValue->value);
+        if(temp == false) {
+            //printf("Error in pdctCreate: Failed to insert into BST2d\n");
+            return NULL;
+        }
         currPoint = currPoint->next;
         currValue = currValue->next;
     }
 
-    // printf("\n");
-    // printf("bstroot: x = %ld\n, y = %ld\n", pd->bst2d->root->p->x, pd->bst2d->root->p->y);
-
     // Check if both lists have the same number of elements
     if (currPoint != NULL || currValue != NULL) {
-        printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
+        //printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
         return NULL;
     }
-    return pd; // Return the pointer to the created PointDct structure
+    return pd;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
-
+// Free a PointDct structure
 void pdctFree(PointDct *pd){
     if (pd == NULL) {
-        printf("Warning in pdctFree: pd is already NULL\n");
+        //printf("Warning in pdctFree: pd is already NULL\n");
         return;
     }
-    bst2dFree(pd->bst2d, false, false); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
-    free(pd); // Libérer la structure PointDct elle-même
+    bst2dFree(pd->bst2d, false, false);
+    free(pd);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
-
+// Print a PointDct structure
 size_t pdctSize(PointDct *pd){
     if (pd == NULL) {
         printf("Error in pdctSize: pd is NULL\n");
         return 0;
     }
-
-    // Utiliser la fonction bstSize pour obtenir le nombre de nœuds dans l'arbre binaire de recherche
     return bst2dSize(pd->bst2d);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
-
+// compute the exact search of a point in the dictionary
 void *pdctExactSearch(PointDct *pd, Point *p){
     if (pd == NULL) {
-        printf("Error in pdctSearch: pd is NULL\n");
+        //printf("Error in pdctSearch: pd is NULL\n");
         return NULL;
     }
     if (p == NULL) {
-        printf("Error in pdctSearch: p is NULL\n");
+        //printf("Error in pdctSearch: p is NULL\n");
         return NULL;
     }
 
-    // Utiliser la fonction bstSearch pour obtenir la valeur associée à la clé p
     void* val = bst2dSearch(pd->bst2d, p);
     if(val == NULL) {
         //printf("Error in pdctSearch: p is not present in the BST\n");
         return NULL;
     }
+
     return val;
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------
 
 List *pdctBallSearch(PointDct *pd, Point *p, double r){
+    if (pd == NULL) {
+        //printf("Error in pdctBallSearch: pd is NULL\n");
+        return NULL;
+    }
+    if (p == NULL) {
+        //printf("Error in pdctBallSearch: p is NULL\n");
+        return NULL;
+    }
+    if (r < 0) {
+        //printf("Error in pdctBallSearch: r is negative\n");
+        return NULL;
+    }
+    
     return bst2dBallSearch(pd->bst2d, p, r);
 }
 

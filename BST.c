@@ -100,6 +100,9 @@ void bstFree(BST *bst, bool freeKey, bool freeValue){
 //--------------------------------------------------------------------------------------------------------------------------------
 // Return the size of a BST
 size_t bstSize(BST *bst){
+    if (bst == NULL){
+        return 0;
+    }
     return bst->size;
 }
 
@@ -178,44 +181,6 @@ void *bstSearch(BST *bst, void *key){
     }
     return NULL;
 }
-
-//--------------------------------------------------------------------------------------------------------------------------------
-//compute the node depth recursively
-static void bstAverageNodeDepthRec(BST *bst, BNode *node, int node_depth, int* total_depth){
-    if (node->right != NULL){
-        *total_depth += node_depth + 1;
-        bstAverageNodeDepthRec(bst, node->right, node_depth + 1, total_depth);
-    }
-
-    if (node->left != NULL){
-       *total_depth += node_depth + 1;
-       bstAverageNodeDepthRec(bst, node->left, node_depth + 1, total_depth);
-    }
-}
-
-//compute the average node depth
-double bstAverageNodeDepth(BST *bst){
-    if (bst == NULL){
-        return -1;
-    }
-    if (bst->root == NULL){
-        return -1;
-    }
-
-    int *total_depth = malloc(sizeof(int));
-    *total_depth = 0; 
-
-    bstAverageNodeDepthRec(bst, bst->root, 0, total_depth);
-
-    double total = *total_depth;
-    free(total_depth);
-
-    double average_depth = total/(bst->size);
-
-    return average_depth;
-
-}
-
 //--------------------------------------------------------------------------------------------------------------------------------
 //compute the range search recursively
 void bstRangeSearchRec(BNode *node, void *keyMin, void *keyMax, int (*compare)(void *, void *), List *l){
@@ -275,6 +240,41 @@ List *bstRangeSearch(BST *bst, void *keyMin, void *keyMax){
 
     return l;
 }
+//--------------------------------------------------------------------------------------------------------------------------------
+//compute the node depth recursively
+static void bstAverageNodeDepthRec(BST *bst, BNode *node, int currNode_depth, int* sum_depth){
+    if (node->right != NULL){
+        *sum_depth += currNode_depth + 1;
+        bstAverageNodeDepthRec(bst, node->right, currNode_depth + 1, sum_depth);
+    }
 
+    if (node->left != NULL){
+       *sum_depth += currNode_depth + 1;
+       bstAverageNodeDepthRec(bst, node->left, currNode_depth + 1, sum_depth);
+    }
+}
+
+//compute the average node depth
+double bstAverageNodeDepth(BST *bst){
+    if (bst == NULL){
+        return -1;
+    }
+    if (bst->root == NULL){
+        return -1;
+    }
+
+    int *sum_depth = malloc(sizeof(int));
+    *sum_depth = 0; 
+
+    bstAverageNodeDepthRec(bst, bst->root, 0, sum_depth);
+
+    double total = *sum_depth;
+    free(sum_depth);
+
+    double average_depth = total/(bst->size);
+
+    return average_depth;
+
+}
 //--------------------------------------------------------------------------------------------------------------------------------
 

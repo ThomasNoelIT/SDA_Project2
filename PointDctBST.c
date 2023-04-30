@@ -39,15 +39,15 @@ static int mycompare(void *a, void *b){
 PointDct *pdctCreate(List *lpoints, List *lvalues) {
     PointDct *pd = (PointDct *)malloc(sizeof(PointDct));
     if (pd == NULL) {
-        printf("Error in pdctCreate: Failed to allocate memory for PointDct\n");
+        //printf("Error in pdctCreate: Failed to allocate memory for PointDct\n");
         return NULL;
     }
     if (lpoints == NULL) {
-        printf("Error in pdctCreate: lpoints is NULL\n");
+        //printf("Error in pdctCreate: lpoints is NULL\n");
         return NULL;
     }
     if (lvalues == NULL) {
-        printf("Error in pdctCreate: lvalues is NULL\n");
+        //printf("Error in pdctCreate: lvalues is NULL\n");
         return NULL;
     }
     pd->bst = bstNew(mycompare);
@@ -58,7 +58,7 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
     LNode *currValue = lvalues->head;
     
     if(currPoint == NULL || currValue == NULL) {
-        printf("Error in pdctCreate: lpoints or lvalues is empty\n");
+        //printf("Error in pdctCreate: lpoints or lvalues is empty\n");
         return NULL;
     }
 
@@ -95,7 +95,7 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 
     // Check if both lists have the same number of elements
     if (currPoint != NULL || currValue != NULL) {
-        printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
+        //printf("Error in pdctCreate: lpoints and lvalues have different number of elements\n");
         return NULL;
     }
     return pd; // Return the pointer to the created PointDct structure
@@ -121,7 +121,7 @@ PointDct *pdctCreate(List *lpoints, List *lvalues) {
 
 void pdctFree(PointDct *pd) {
     if (pd == NULL) {
-        printf("Warning in pdctFree: pd is already NULL\n");
+        //printf("Warning in pdctFree: pd is already NULL\n");
         return;
     }
     bstFree(pd->bst, false, false); // Libérer l'arbre binaire de recherche, les clés et les valeurs associées
@@ -132,7 +132,7 @@ void pdctFree(PointDct *pd) {
 
 size_t pdctSize(PointDct *pd) {
     if (pd == NULL) {
-        printf("Error in pdctSize: pd is NULL\n");
+        //printf("Error in pdctSize: pd is NULL\n");
         return 0;
     }
 
@@ -175,38 +175,42 @@ void *pdctExactSearch(PointDct *pd, Point *p)
 List *pdctBallSearch(PointDct *pd, Point *p, double r){
     Point *temp1 = ptNew(ptGetx(p)-r, ptGety(p));
     Point *temp2 = ptNew(ptGetx(p)+r, ptGety(p));
-    List *l = listNew();
-    if (l == NULL){
-        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
-        return NULL;
-    }
+    //List *l_point = listNew();
+    // if (l_point == NULL){
+    //     printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
+    //     return NULL;
+    // }
     List *result = listNew();
     if (result == NULL){
-        printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
+        //printf("Error in pdctBallSearch: Failed to allocate memory for List\n");
         return NULL;
     }
-    //printf("adresse de l: %p\n", &l);
-    //printf("adresse de result: %p\n", &result);
-    l = bstRangeSearch(pd->bst, temp1, temp2);
-    ptFree(temp1);
-    ptFree(temp2);
+    void* val;
     bool sort;
-    for(size_t i = 0; i < listSize(l); i++){
-        void* val = bstSearch(pd->bst,l->head->value);
-        if(ptSqrDistance(l->head->value, p) <= r*r){
+
+    List* l_point = bstRangeSearch(pd->bst, temp1, temp2); //renvoie une liste de points dans l'intervalle [temp1, temp2]
+    LNode *curr = l_point->head;
+    
+    while(curr != NULL){
+        val = bstSearch(pd->bst,curr->value);
+        if(ptSqrDistance(curr->value, p) <= r*r){
             sort = listInsertLast(result, val);
             if(sort == false){
-                printf("Error in pdctBallSearch: Failed to insert value in list\n");
+                //printf("Error in pdctBallSearch: Failed to insert value in list\n");
                 return NULL;
             }
         }
-        l->head = l->head->next;
+        curr = curr->next;
+
     }
-    listFree(l, true);
-    //printf("1\n");
-    //printf("result: %p\n", result->head->value);
-    //listFree(result, false);
-    //printf("2\n");
+
+
+    listFree(l_point, false);
+    // ptFree(curr->value,false);
+    ptFree(temp1);
+    ptFree(temp2);
+    //ptFree(curr->value);
+    //free(val);
 
     return result;
 }
@@ -214,3 +218,4 @@ List *pdctBallSearch(PointDct *pd, Point *p, double r){
 //--------------------------------------------------------------------------------------------------------------------------------
 
 #endif // POINTDCT_H
+
